@@ -5,7 +5,7 @@ from tgbot.models.models import User
 from tgbot.keyboards.inline import AdminMenu
 from load_all import dp
 from tgbot.misc.states import AdminRegisterState
-
+from aiogram.dispatcher import FSMContext
 
 async def admin_start(message: Message):
     return await message.reply("Hello, admin!", reply_markup=AdminMenu)
@@ -20,11 +20,17 @@ async def get_awaiting_register_users(message: Message):
     for user in users:
         markup.add(InlineKeyboardButton(text=user.fio, callback_data=user.user_id))
 
+    if len(users) == 0:
+        await dp.bot.send_message(chat_id=message.from_user.id, text="Нет новых участников")
+        return
+
     await dp.bot.send_message(chat_id=message.from_user.id, text="Список", reply_markup=markup)
 
 
-async def register_user(call : CallbackQuery):
-    await AdminRegisterState.ApprovalUsers.set()
+async def register_user(call : CallbackQuery, state: FSMContext):
+    state.reset_state()
+    if int(call.data) is not int:
+        return
     user = await User.query.where(User.user_id == int(call.data)).gino.first()
     await user.update(isRegistered = True).apply()
     await user.update(awaiting_register=False).apply()
