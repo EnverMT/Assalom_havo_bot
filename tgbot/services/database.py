@@ -27,8 +27,9 @@ class DBCommands:
         return await user.update(awaiting_register=True).apply()
 
     async def get_user(self, user_id) -> User:
-        user = await User.query.where(User.user_id == user_id).gino.first()
-        return user
+        return await User.query.where(User.user_id == user_id).gino.first()
+
+
 
     async def add_new_user(self, referral=None) -> User:
         user = types.User.get_current()

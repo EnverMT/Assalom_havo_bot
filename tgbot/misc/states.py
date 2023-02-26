@@ -7,3 +7,7 @@ class RegisterState(StatesGroup):
     house = State()
     apartment = State()
     final = State()
+
+class AdminRegisterState(StatesGroup):
+    AwaitingUsersList = State()
+    ApprovalUsers = State()
