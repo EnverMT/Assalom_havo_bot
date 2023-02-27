@@ -4,7 +4,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import Message
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from tgbot.keyboards.inline import AdminMenu
 from tgbot.misc.states import AdminState
@@ -54,13 +54,31 @@ async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
     keyb.add(InlineKeyboardButton(text="Принять", callback_data="Approve"))
     keyb.add(InlineKeyboardButton(text="Отказать", callback_data="Deny"))
 
-    await call.bot.send_message(chat_id=call.from_user.id, text=text, reply_markup=keyb)
-    await state.update_data(under_approval_user=user.id)
     await AdminState.WaitingApproval.set()
+    await state.update_data(user_id=int(user.id))
+    await call.bot.send_message(chat_id=call.from_user.id, text=text, reply_markup=keyb)
 
 
 async def approve_user(call: types.CallbackQuery, state: FSMContext):
-    pass
+    db_session = call.bot.get("db")
+    user_data = await state.get_data()
+    user_id = user_data['user_id']
+
+    if call.data == "Approve":
+        print(user_id)
+        sql = update(User).values(isApproved=True, whoApproved=call.from_user.id).where(User.id == user_id)
+        async with db_session() as session:
+            await session.execute(sql)
+            await session.commit()
+
+        await call.message.edit_reply_markup()
+        await call.bot.send_message(chat_id=call.from_user.id, text="Approved")
+    else:
+        await state.reset_state()
+        await state.finish()
+        await call.bot.send_message(chat_id=call.from_user.id, text="Denied")
+
+
 
 
 def register_admin(dp: Dispatcher):

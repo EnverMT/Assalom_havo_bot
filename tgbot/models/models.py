@@ -15,7 +15,7 @@ class User(Base):
     full_name = Column(String(100))
     username = Column(String(50))
     isApproved = Column(Boolean)
-    whoApproved = Column(Integer)
+    whoApproved = Column(BigInteger)
 
     query: sql.Select
 
