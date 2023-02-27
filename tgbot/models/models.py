@@ -28,6 +28,6 @@ class Phone(Base):
     __tablename__ = 'phones'
 
     id = Column(Integer, primary_key=True)
-    numbers = Column(String(15))
+    numbers = Column(String(15), unique=True)
     user_id = Column(BigInteger, ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True))

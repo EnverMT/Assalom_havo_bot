@@ -1,12 +1,9 @@
-from typing import List
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
-from sqlalchemy import select
-
-from tgbot.models.models import User
 from tgbot.services.DbCommands import DbCommands
+from tgbot.keyboards.inline import UserMenu
+from tgbot.misc.states import UserState
 
 db = DbCommands()
 
@@ -15,13 +12,29 @@ async def user_start(message: Message):
     user = await db.select_user(message=message)
     if not user:
         await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию")
-        await add_user(message)
+        await db.add_user(message=message)
         return
 
-    await message.answer(text=f"Привет {user.full_name}")
+    if not user.isApproved:
+        await message.answer(text="Вы еще не прошли авторизацию. Обратитесь к администратору.")
+        return
 
-async def add_user(message: Message):
-    await db.add_user(message=message)
+    await message.answer(text=f"Привет {user.full_name}", reply_markup=UserMenu)
+    await UserState.Menu.set()
+
+
+async def info_about_me(call: types.CallbackQuery):
+    user = await db.select_user(call)
+    await call.message.edit_reply_markup()
+    await call.bot.send_message(chat_id=call.from_user.id, text=f"Full name: {user.full_name}")
+
+    phones = await db.get_user_phones(call)
+    text = ""
+    for p in phones:
+        text += f"tel: {p.numbers}\n"
+    await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
+
+    await UserState.InfoAboutMe.set()
 
 
 async def cancel(message: types.Message, state: FSMContext):
@@ -38,5 +51,7 @@ async def cancel(message: types.Message, state: FSMContext):
 
 
 def register_user(dp: Dispatcher):
-    dp.register_message_handler(user_start, commands=["start"], state=None)
+    dp.register_message_handler(user_start, state='*', commands=["start"])
+    dp.register_callback_query_handler(info_about_me, state=UserState.Menu)
+
     dp.register_message_handler(cancel, state='*', commands=['cancel'])

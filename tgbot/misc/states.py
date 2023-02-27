@@ -8,3 +8,8 @@ class RegisterState(StatesGroup):
 class AdminRegisterState(StatesGroup):
     AwaitingUsersList = State()
     ApprovalUsers = State()
+
+
+class UserState(StatesGroup):
+    Menu = State()
+    InfoAboutMe = State()
