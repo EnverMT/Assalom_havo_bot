@@ -1,7 +1,5 @@
-from typing import List
 from aiogram import Dispatcher
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from tgbot.models.models import User
 from tgbot.keyboards.inline import AdminMenu
 
 

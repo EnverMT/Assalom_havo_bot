@@ -3,33 +3,25 @@ from typing import List
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
-from sqlalchemy import insert, select
+from sqlalchemy import select
 
 from tgbot.models.models import User
+from tgbot.services.DbCommands import DbCommands
+
+db = DbCommands()
 
 
 async def user_start(message: Message):
-    db_session = message.bot.get("db")
-    sql = select(User).where(User.user_id == message.from_user.id)
+    user = await db.select_user(message=message)
+    if not user:
+        await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию")
+        await add_user(message)
+        return
 
-    async with db_session() as session:
-        result = await session.execute(sql)
-        row: List[User] = result.first()
-        if row:
-            await message.answer(text=f"Привет {row[0].full_name}")
-        else:
-            await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию")
-            await add_user(message)
-
+    await message.answer(text=f"Привет {user.full_name}")
 
 async def add_user(message: Message):
-    db_session = message.bot.get("db")
-    sql = insert(User).values(user_id=message.from_user.id,
-                              full_name=message.from_user.full_name)
-    async with db_session() as session:
-        await session.execute(sql)
-        await session.commit()
-    #await message.answer(text=f"User added", parse_mode='HTML')
+    await db.add_user(message=message)
 
 
 async def cancel(message: types.Message, state: FSMContext):

@@ -2,9 +2,7 @@ from sqlalchemy import Column, Integer, BigInteger, String, Boolean, TIMESTAMP
 from sqlalchemy import sql
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import relationship
-from typing import List
+
 
 from tgbot.services.Base import Base
 
