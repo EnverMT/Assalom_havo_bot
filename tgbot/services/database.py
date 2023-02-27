@@ -4,7 +4,9 @@ from tgbot.models.models import User
 from tgbot.services.db import db
 from aiogram import types
 
-
+"""
+[ ] Изучить о замене Gino на обычный SQLalchemy 
+"""
 class DBCommands:
     async def register_add_phone_number(self, phone_number):
         user = await User.query.where(User.user_id == types.User.get_current().id).gino.first()

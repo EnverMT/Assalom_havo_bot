@@ -8,6 +8,10 @@ import tgbot.services.database
 
 database = tgbot.services.database.DBCommands()
 
+"""
+[ ] To do validation of all inputs in all methods
+[ ] To use memoryStorage, and save data to Database at final step only
+"""
 
 async def check_register_status(message: types.Message, state : FSMContext):
     user = await database.get_user(message.from_user.id)

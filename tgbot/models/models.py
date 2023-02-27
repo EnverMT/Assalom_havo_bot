@@ -11,13 +11,13 @@ class User(db.Model):
     full_name = Column(String(100))
     fio = Column(String(100))
     username = Column(String(50))
-    phone_number = Column(String(15))
-    house_number = Column(Integer)
-    apartment_number = Column(Integer)
-    awaiting_register = Column(Boolean)
-    isRegistered = Column(Boolean)
-    canRegisterUser = Column(Boolean)
-    whoRegistered = Column(Integer)
+    phone_number = Column(String(15))       # Что будет если у человека несколько телефонов?
+    house_number = Column(Integer)          # Что будет если у человека несколько домов?
+    apartment_number = Column(Integer)      # Что будет если у человека несколько квартир?
+    awaiting_register = Column(Boolean)     # Изменить это на isAprroved
+    isRegistered = Column(Boolean)          # Впринцпе можно отказатся от этой колонки
+    canRegisterUser = Column(Boolean)       # Убрать эту колонку, сделать отдельную таблицу для домкомов и модераторов, и связать ForeignKey
+    whoRegistered = Column(Integer)         # Изменить это на whoApproved
     query: sql.Select
 
     def __repr__(self):

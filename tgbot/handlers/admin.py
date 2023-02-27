@@ -7,6 +7,7 @@ from load_all import dp
 from tgbot.misc.states import AdminRegisterState
 from aiogram.dispatcher import FSMContext
 
+
 async def admin_start(message: Message):
     return await message.reply("Hello, admin!", reply_markup=AdminMenu)
 
@@ -21,9 +22,10 @@ async def get_awaiting_register_users(message: Message):
         markup.add(InlineKeyboardButton(text=user.fio, callback_data=user.user_id))
 
     if len(users) == 0:
-        await dp.bot.send_message(chat_id=message.from_user.id, text="Нет новых участников")
+        await dp.bot.send_message(chat_id=message.from_user.id, text="Нет ожидающих участников участников")
         return
-
+    # Изучить, почему, message.answer тут не работает
+    # изза этого пришлось импортировать глобальную dp
     await dp.bot.send_message(chat_id=message.from_user.id, text="Список", reply_markup=markup)
 
 
@@ -41,5 +43,3 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
     dp.register_callback_query_handler(get_awaiting_register_users, text_contains="list_of_awayting_users", is_admin=True)
     dp.register_callback_query_handler(register_user, state=AdminRegisterState.AwaitingUsersList, is_admin=True)
-
-

@@ -1,7 +1,7 @@
 import asyncio
-import logging
 
-from aiogram import Bot, Dispatcher
+from load_all import bot, config, dp, logger
+from aiogram import Bot
 
 from aiogram.types import BotCommand
 
@@ -12,7 +12,6 @@ from tgbot.handlers.user import register_user
 from tgbot.handlers.register import register_register_menu
 from tgbot.middlewares.environment import EnvironmentMiddleware
 from tgbot.services.database import create_db
-
 
 
 
@@ -39,7 +38,6 @@ async def set_default_commands(bot : Bot):
 
 
 async def main():
-    from load_all import bot, config, dp
     bot['config'] = config
 
     register_all_middlewares(dp, config)
