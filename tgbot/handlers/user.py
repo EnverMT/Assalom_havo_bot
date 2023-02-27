@@ -29,7 +29,7 @@ async def info_about_me(call: types.CallbackQuery):
     text = f"Full name: {user.full_name}\n"
     phones = await db.get_user_phones(call)
     for p in phones:
-        text += f"tel: {p.numbers}\n"
+        text += f"tel: {p[0].numbers}\n"
     await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
 
     await UserState.InfoAboutMe.set()
