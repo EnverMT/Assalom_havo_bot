@@ -22,7 +22,7 @@ async def get_awaiting_register_users(message: Message):
         markup.add(InlineKeyboardButton(text=user.fio, callback_data=user.user_id))
 
     if len(users) == 0:
-        await dp.bot.send_message(chat_id=message.from_user.id, text="Нет ожидающих участников участников")
+        await dp.bot.send_message(chat_id=message.from_user.id, text="Нет ожидающих участников")
         return
     # Изучить, почему, message.answer тут не работает
     # изза этого пришлось импортировать глобальную dp
