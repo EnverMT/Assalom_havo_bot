@@ -1,11 +1,11 @@
 from gino.schema import GinoSchemaVisitor
 import tgbot.config
 from tgbot.models.models import User
-from tgbot.services.db import db
+from tgbot.services.db import Base
 from aiogram import types
 
 """
-[ ] Изучить о замене Gino на обычный SQLalchemy 
+[x] Изучить о замене Gino на обычный SQLalchemy 
 """
 class DBCommands:
     async def register_add_phone_number(self, phone_number):
@@ -49,11 +49,13 @@ class DBCommands:
         return new_user
 
 
+
 async def create_db(config: tgbot.config.Config):
-    await db.set_bind(f'postgresql://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}')
+    pass
+    #await db.set_bind(f'postgresql://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}')
 
     # Create tables
-    db.gino: GinoSchemaVisitor
+    #db.gino: GinoSchemaVisitor
 
     # Alembic will handle DB structure
     # alembic revision -m "your migration description" --autogenerate --head head

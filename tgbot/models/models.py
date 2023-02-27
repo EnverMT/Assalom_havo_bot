@@ -1,12 +1,12 @@
 from sqlalchemy import (Column, Integer, BigInteger, String,
                         Sequence, TIMESTAMP, Boolean, JSON)
 from sqlalchemy import sql
-from tgbot.services.db import db
+from tgbot.services.db import Base
 
-class User(db.Model):
+class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+    id = Column(Integer, primary_key=True)
     user_id = Column(BigInteger)
     full_name = Column(String(100))
     fio = Column(String(100))
