@@ -26,10 +26,8 @@ async def user_start(message: Message):
 async def info_about_me(call: types.CallbackQuery):
     user = await db.select_user(call)
     await call.message.edit_reply_markup()
-    await call.bot.send_message(chat_id=call.from_user.id, text=f"Full name: {user.full_name}")
-
+    text = f"Full name: {user.full_name}\n"
     phones = await db.get_user_phones(call)
-    text = ""
     for p in phones:
         text += f"tel: {p.numbers}\n"
     await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")

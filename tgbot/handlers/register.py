@@ -13,7 +13,6 @@ from tgbot.services.DbCommands import DbCommands
 db = DbCommands()
 
 async def check_register_status(message: types.Message, state : FSMContext):
-    await RegisterState.ReadyToRegister.set()
     user = await db.select_user(message=message)
 
     if not user:
@@ -23,13 +22,17 @@ async def check_register_status(message: types.Message, state : FSMContext):
         await message.answer(text=f"Вы уже прошли регистрацию {user.full_name}")
         return
 
+    is_phone_exist = await db.is_phone_exist(message)
+    if is_phone_exist:
+        await message.answer(text="Ваша заявка под рассмотрением")
+        return
+
     await message.answer(text=f"Вы готовы пройти Регистрацию {user.full_name} ?", reply_markup=contact_request)
+    await RegisterState.ReadyToRegister.set()
 
 
 async def register_get_contact(message: types.Message, state : FSMContext):
     await RegisterState.phone_number.set()
-    user = await db.select_user(message)
-
     await db.add_phone(message)
     await message.answer(f"Ваши контакты были записаны. Ждите утверждения Администратора", reply_markup=types.ReplyKeyboardRemove())
     await state.reset_state()

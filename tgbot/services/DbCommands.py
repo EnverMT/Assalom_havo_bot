@@ -1,5 +1,6 @@
 from typing import List
 from aiogram import types
+from aiogram.types.base import Boolean
 from sqlalchemy import select, insert
 from sqlalchemy.orm import query
 
@@ -49,3 +50,16 @@ class DbCommands:
                 for r in rows:
                     _list.append(r[0])
                 return _list
+
+
+    async def is_phone_exist(self, message: types.Message) -> Boolean:
+        db_session = message.bot.get("db")
+        user = await self.select_user(message)
+        sql = select(Phone).where(Phone.user_id == user.id)
+        async with db_session() as session:
+            result = await session.execute(sql)
+            rows = result.all()
+            if rows:
+                return True
+            else:
+                return False
