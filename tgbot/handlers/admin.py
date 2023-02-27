@@ -17,6 +17,10 @@ async def list_of_waiting_approval_users(call: types.CallbackQuery):
     await call.message.edit_reply_markup()
     users = await db.get_list_of_waiting_approval_users(call=call)
     inline_user_keyboard = InlineKeyboardMarkup(row_width=1)
+    if not users:
+        await call.bot.send_message(chat_id=call.from_user.id, text="No users waiting")
+        return
+
     for user, phone in users:
         text = f"Имя: {user.full_name}\t"
         text += f"Phone: {phone.numbers}"
