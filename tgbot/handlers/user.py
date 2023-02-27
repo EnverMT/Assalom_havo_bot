@@ -9,7 +9,6 @@ from tgbot.models.models import User
 
 
 async def user_start(message: Message):
-    await message.answer("Hello user")
     db_session = message.bot.get("db")
     sql = select(User).where(User.user_id == message.from_user.id)
 
@@ -19,6 +18,7 @@ async def user_start(message: Message):
         if row:
             await message.answer(text=f"Привет {row[0].full_name}")
         else:
+            await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию")
             await add_user(message)
 
 

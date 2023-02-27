@@ -1,6 +1,11 @@
-from sqlalchemy import (Column, Integer, BigInteger, String,
-                        Sequence, TIMESTAMP, Boolean, JSON)
+from sqlalchemy import Column, Integer, BigInteger, String, Boolean, TIMESTAMP
 from sqlalchemy import sql
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import relationship
+from typing import List
+
 from tgbot.services.Base import Base
 
 
@@ -10,17 +15,21 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(BigInteger)
     full_name = Column(String(100))
-    fio = Column(String(100))
     username = Column(String(50))
-    phone_number = Column(String(15))       # Что будет если у человека несколько телефонов?
-    house_number = Column(Integer)          # Что будет если у человека несколько домов?
-    apartment_number = Column(Integer)      # Что будет если у человека несколько квартир?
-    awaiting_register = Column(Boolean)     # Изменить это на isAprroved
-    isRegistered = Column(Boolean)          # Впринцпе можно отказатся от этой колонки
-    canRegisterUser = Column(Boolean)       # Убрать эту колонку, сделать отдельную таблицу для домкомов и модераторов, и связать ForeignKey
-    whoRegistered = Column(Integer)         # Изменить это на whoApproved
+    isApproved = Column(Boolean)
+    whoApproved = Column(Integer)
+
     query: sql.Select
 
     def __repr__(self):
         return "<User(id='{}', fullname='{}', username='{}')>".format(
             self.id, self.full_name, self.username)
+
+
+class Phone(Base):
+    __tablename__ = 'phones'
+
+    id = Column(Integer, primary_key=True)
+    numbers = Column(Integer)
+    user_id = Column(Integer, ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True))
