@@ -18,15 +18,25 @@ async def list_of_waiting_approval_users(call: types.CallbackQuery):
     users = await db.get_list_of_waiting_approval_users(call=call)
     inline_user_keyboard = InlineKeyboardMarkup(row_width=1)
     for user, phone in users:
-        text = f"Имя: {user.full_name}\n"
+        text = f"Имя: {user.full_name}\t"
         text += f"Phone: {phone.numbers}"
         inline_user_keyboard.add(InlineKeyboardButton(text=text, callback_data=user.id))
     await call.bot.send_message(chat_id=call.from_user.id, text="List of waiting approval users", reply_markup=inline_user_keyboard)
     await AdminState.ListOfWaitingApprovalUsers.set()
+
+async def waiting_approval_user(call: types.CallbackQuery):
+    await call.message.edit_reply_markup()
+    user = await db.select_user(call, int(call.data))
+    print(user)
+
+
 
 def register_admin(dp: Dispatcher):
     dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
     dp.register_callback_query_handler(list_of_waiting_approval_users,
                                        text_contains="list_of_waiting_approval_users",
                                        state=AdminState.Menu,
+                                       is_admin=True)
+    dp.register_callback_query_handler(waiting_approval_user,
+                                       state=AdminState.ListOfWaitingApprovalUsers,
                                        is_admin=True)

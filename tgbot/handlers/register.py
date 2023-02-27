@@ -13,7 +13,7 @@ from tgbot.services.DbCommands import DbCommands
 db = DbCommands()
 
 async def check_register_status(message: types.Message, state : FSMContext):
-    user = await db.select_user(message=message)
+    user = await db.select_current_user(message=message)
 
     if not user:
         return

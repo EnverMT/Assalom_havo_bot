@@ -1,6 +1,6 @@
 from typing import List
 from aiogram import types
-from aiogram.types.base import Boolean
+from aiogram.types.base import Boolean, Integer
 from sqlalchemy import select, insert
 from sqlalchemy.orm import query
 
@@ -8,7 +8,18 @@ from tgbot.models.models import User, Phone
 
 
 class DbCommands:
-    async def select_user(self, message: types.Message) -> User:
+    async def select_user(self, call:types.CallbackQuery, user_id : Integer) -> User | None:
+        db_session = call.bot.get("db")
+        sql = select(User).where(User.id == user_id)
+        async with db_session() as session:
+            result = await session.execute(sql)
+            row: List[User] = result.first()
+            if row:
+                return row[0]
+            else:
+                return None
+
+    async def select_current_user(self, message: types.Message) -> User | None:
         db_session = message.bot.get("db")
         sql = select(User).where(User.user_id == message.from_user.id)
 
@@ -29,7 +40,7 @@ class DbCommands:
             return await session.commit()
 
     async def add_phone(self, message: types.Message):
-        user: User = await self.select_user(message=message)
+        user: User = await self.select_current_user(message=message)
         db_session = message.bot.get("db")
         sql = insert(Phone).values(user_id=user.id,
                                    numbers=str(message.contact.phone_number))
@@ -38,7 +49,7 @@ class DbCommands:
             return await session.commit()
 
     async def get_user_phones(self, message: types.Message) -> List[Phone]:
-        user = await self.select_user(message=message)
+        user = await self.select_current_user(message=message)
         db_session = message.bot.get("db")
         sql = select(Phone).where(Phone.user_id == user.id)
         async with db_session() as session:
@@ -54,7 +65,7 @@ class DbCommands:
 
     async def is_phone_exist(self, message: types.Message) -> Boolean:
         db_session = message.bot.get("db")
-        user = await self.select_user(message)
+        user = await self.select_current_user(message)
         sql = select(Phone).where(Phone.user_id == user.id)
         async with db_session() as session:
             result = await session.execute(sql)

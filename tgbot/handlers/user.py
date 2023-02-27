@@ -9,7 +9,7 @@ db = DbCommands()
 
 
 async def user_start(message: Message):
-    user = await db.select_user(message=message)
+    user = await db.select_current_user(message=message)
     if not user:
         await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию")
         await db.add_user(message=message)
@@ -24,7 +24,7 @@ async def user_start(message: Message):
 
 
 async def info_about_me(call: types.CallbackQuery):
-    user = await db.select_user(call)
+    user = await db.select_current_user(call)
     await call.message.edit_reply_markup()
     text = f"Full name: {user.full_name}\n"
     phones = await db.get_user_phones(call)
