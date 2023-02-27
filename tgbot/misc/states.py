@@ -5,9 +5,9 @@ class RegisterState(StatesGroup):
     phone_number = State()
 
 
-class AdminRegisterState(StatesGroup):
-    AwaitingUsersList = State()
-    ApprovalUsers = State()
+class AdminState(StatesGroup):
+    Menu = State()
+    ListOfWaitingApprovalUsers = State()
 
 
 class UserState(StatesGroup):

@@ -63,3 +63,16 @@ class DbCommands:
                 return True
             else:
                 return False
+
+
+    async def get_list_of_waiting_approval_users(self, call:types.CallbackQuery):
+        db_session = call.bot.get("db")
+        sql = select(User, Phone).join(Phone, User.id == Phone.user_id).where(User.isApproved != True and Phone.numbers != None)
+
+        async with db_session() as session:
+            result = await session.execute(sql)
+            rows= result.all()
+            if rows:
+                return rows
+            else:
+                return None
