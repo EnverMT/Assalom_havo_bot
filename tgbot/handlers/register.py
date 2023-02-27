@@ -13,18 +13,22 @@ from tgbot.services.DbCommands import DbCommands
 db = DbCommands()
 
 async def check_register_status(message: types.Message, state : FSMContext):
+    await RegisterState.ReadyToRegister.set()
     user = await db.select_user(message=message)
     if not user:
         return
     await message.answer(text=f"Вы готовы пройти Регистрацию {user.full_name} ?", reply_markup=contact_request)
 
 
-async def register_get_contact_callback(message: types.Message) -> User:
-   pass
+async def register_get_contact(message: types.Message, state : FSMContext) -> User:
+    await RegisterState.phone_number.set()
+    await db.add_phone(message)
+    await message.answer(f"Ваши контакты были записаны. Ждите утверждения Администратора: ", reply_markup=types.ReplyKeyboardRemove())
+    await state.reset_state()
 
 
 def register_register_menu(dp: Dispatcher):
     dp.register_message_handler(check_register_status, commands=["register"], state='*')
-    dp.register_message_handler(register_get_contact_callback,
+    dp.register_message_handler(register_get_contact,
                                 state=RegisterState.ReadyToRegister,
                                 content_types=types.ContentType.CONTACT)
