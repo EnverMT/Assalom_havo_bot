@@ -4,7 +4,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import Message
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 
 from tgbot.keyboards.inline import AdminMenu
 from tgbot.misc.states import AdminState
@@ -76,6 +76,10 @@ async def approve_user(call: types.CallbackQuery, state: FSMContext):
     else:
         await state.reset_state()
         await state.finish()
+        sql = delete(User).where(User.id == user_id)
+        async with db_session() as session:
+            await session.execute(sql)
+            await session.commit()
         await call.bot.send_message(chat_id=call.from_user.id, text="Denied")
 
 
