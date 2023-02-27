@@ -1,7 +1,8 @@
 from sqlalchemy import (Column, Integer, BigInteger, String,
                         Sequence, TIMESTAMP, Boolean, JSON)
 from sqlalchemy import sql
-from tgbot.services.db import Base
+from tgbot.services.Base import Base
+
 
 class User(Base):
     __tablename__ = 'users'

@@ -1,7 +1,5 @@
-from gino.schema import GinoSchemaVisitor
 import tgbot.config
 from tgbot.models.models import User
-from tgbot.services.db import Base
 from aiogram import types
 
 """
