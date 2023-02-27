@@ -1,27 +1,38 @@
+from typing import List
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
-from tgbot.keyboards.inline import UserMenu
+from sqlalchemy import insert, select
 
-from tgbot.services.database import DBCommands
+from tgbot.models.models import User
 
-database = DBCommands()
 
 async def user_start(message: Message):
-    user = await database.get_user(message.from_user.id)
-    if not user:
-        await message.answer("Вы еще не прошли регистрацию")
-        return
+    await message.answer("Hello user")
+    db_session = message.bot.get("db")
+    sql = select(User).where(User.user_id == message.from_user.id)
 
-    if user.isRegistered:
-        await message.reply("Добро пожаловать в бот Ассалом Хаво!", reply_markup=UserMenu)
-        return
+    async with db_session() as session:
+        result = await session.execute(sql)
+        row: List[User] = result.first()
+        if row:
+            await message.answer(text=f"Привет {row[0].full_name}")
+        else:
+            await add_user(message)
 
-    if user.awaiting_register:
-        await message.answer("Ваша заявка под рассмотрением")
-        return
 
-async def cancel(message: types.Message, state : FSMContext):
+async def add_user(message: Message):
+    db_session = message.bot.get("db")
+    sql = insert(User).values(user_id=message.from_user.id,
+                              full_name=message.from_user.full_name)
+    async with db_session() as session:
+        await session.execute(sql)
+        await session.commit()
+    #await message.answer(text=f"User added", parse_mode='HTML')
+
+
+async def cancel(message: types.Message, state: FSMContext):
     """
       Allow user to cancel any action
     """

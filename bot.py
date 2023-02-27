@@ -60,6 +60,7 @@ async def main():
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     bot["db"] = async_sessionmaker
     bot['config'] = config
+    bot['logger'] = logger
 
     storage = MemoryStorage()
     dp = Dispatcher(bot, storage=storage)
