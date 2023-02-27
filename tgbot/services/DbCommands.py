@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from aiogram import types
 from aiogram.types.base import Boolean, Integer
 from sqlalchemy import select, insert
@@ -48,20 +48,13 @@ class DbCommands:
             await session.execute(sql)
             return await session.commit()
 
-    async def get_user_phones(self, message: types.Message) -> List[Phone]:
+    async def get_user_phones(self, message: types.Message) -> List[Tuple[Phone]]:
         user = await self.select_current_user(message=message)
         db_session = message.bot.get("db")
         sql = select(Phone).where(Phone.user_id == user.id)
         async with db_session() as session:
             result = await session.execute(sql)
-            rows = result.all()
-
-            if rows:
-                _list = list()
-                for r in rows:
-                    _list.append(r[0])
-                return _list
-
+            return result.all()
 
     async def is_phone_exist(self, message: types.Message) -> Boolean:
         db_session = message.bot.get("db")

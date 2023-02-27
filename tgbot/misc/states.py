@@ -14,3 +14,6 @@ class AdminState(StatesGroup):
 class UserState(StatesGroup):
     Menu = State()
     InfoAboutMe = State()
+
+class UserDataState(StatesGroup):
+    test_data = State()
