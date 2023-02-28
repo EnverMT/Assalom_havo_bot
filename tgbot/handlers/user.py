@@ -1,12 +1,10 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
-from sqlalchemy import select
 
-from tgbot.models.models import Address
-from tgbot.services.DbCommands import DbCommands
 from tgbot.keyboards.inline import UserMenu
 from tgbot.misc.states import UserState
+from tgbot.services.DbCommands import DbCommands
 
 db = DbCommands()
 
@@ -36,9 +34,9 @@ async def info_about_me(call: types.CallbackQuery):
     phones = await user.get_phones(call=call)
     for p in phones:
         text += f"Tel: {p[0].numbers}\n"
-
+    for a in addresses:
+        text += f"Address: {a[0].house}/{a[0].apartment}\n"
     await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
-
     await UserState.InfoAboutMe.set()
 
 
