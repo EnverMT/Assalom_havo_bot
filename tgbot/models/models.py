@@ -1,13 +1,13 @@
 from typing import List, Tuple
 
 from aiogram import types
-from sqlalchemy import Column, Integer, BigInteger, String, Boolean, TIMESTAMP, DateTime, select
-from sqlalchemy import sql
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, select
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.sql import func
 
 from tgbot.services.Base import Base
+
 
 class Phone(Base):
     __tablename__ = 'phones'
@@ -38,6 +38,21 @@ class Address(Base):
             self.id, self.house, self.apartment, self.user_id)
 
 
+class Domkom(Base):
+    __tablename__ = 'domkoms'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    telegram_id = Column(BigInteger, nullable=False)
+    whoAssigned = Column(BigInteger, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    def __repr__(self):
+        return "<Domkom(id='{}', user_id='{}', whoAssigned='{}')>".format(
+            self.id, self.user_id, self.whoAssigned)
+
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -54,7 +69,15 @@ class User(Base):
         return "<User(id='{}', fullname='{}', username='{}')>".format(
             self.id, self.full_name, self.username)
 
-    async def get_addresses(self, call: types.CallbackQuery) -> List[Tuple[Address]]:
+    async def is_domkom(self, call: types.CallbackQuery | types.Message) -> bool:
+        db_session = call.bot.get("db")
+        sql = select(User).join(Domkom, Domkom.telegram_id == call.from_user.id)
+        async with db_session() as session:
+            result = await session.execute(sql)
+            row: List[User] = result.first()
+            return True if row else False
+
+    async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[Tuple[Address]]:
         db_session = call.bot.get("db")
         sql = select(User).where(User.telegram_id == call.from_user.id)
         async with db_session() as session:

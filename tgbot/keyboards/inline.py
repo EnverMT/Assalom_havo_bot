@@ -3,9 +3,18 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 AdminMenu = InlineKeyboardMarkup(
         inline_keyboard=
         [
+            [InlineKeyboardButton(text="Список домкомов", callback_data="list_of_domkoms")],
             [InlineKeyboardButton(text="Список ожидаемых пользователей", callback_data="list_of_waiting_approval_users")]
         ]
     )
+
+DomkomMenu = InlineKeyboardMarkup(
+        inline_keyboard=
+        [
+            [InlineKeyboardButton(text="Список ожидаемых пользователей", callback_data="list_of_waiting_approval_users")]
+        ]
+    )
+
 
 UserMenu = InlineKeyboardMarkup(
         inline_keyboard=

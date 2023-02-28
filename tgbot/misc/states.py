@@ -1,5 +1,6 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
+
 class RegisterState(StatesGroup):
     ReadyToRegister = State()
     phone_number = State()
@@ -8,15 +9,23 @@ class RegisterState(StatesGroup):
     FinalStep = State()
 
 
+class UserApprovalState(StatesGroup):
+    ListOfWaitingApprovalUsers = State()
+    WaitingApprovalUser = State()
+
+
 class AdminState(StatesGroup):
     Menu = State()
-    ListOfWaitingApprovalUsers = State()
-    WaitingApproval = State()
+
+
+class DomkomControlState(StatesGroup):
+    ListOfDomkoms = State()
+
+
+class DomkomState(StatesGroup):
+    Menu = State()
 
 
 class UserState(StatesGroup):
     Menu = State()
     InfoAboutMe = State()
-
-class UserDataState(StatesGroup):
-    test_data = State()

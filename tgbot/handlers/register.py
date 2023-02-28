@@ -2,12 +2,10 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from sqlalchemy import insert
 
-from tgbot.models.models import User, Phone, Address
 from tgbot.keyboards.reply import contact_request
 from tgbot.misc.states import RegisterState
+from tgbot.models.models import Phone, Address
 from tgbot.services.DbCommands import DbCommands
-
-import datetime
 
 """
 [ ] To do validation of all inputs in all methods

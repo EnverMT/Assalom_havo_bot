@@ -8,7 +8,7 @@ from tgbot.models.models import User, Phone
 
 
 class DbCommands:
-    async def select_user(self, call: types.CallbackQuery, user_id: Integer) -> User | None:
+    async def select_user(self, call: types.CallbackQuery, user_id: Integer) -> User:
         db_session = call.bot.get("db")
         sql = select(User).where(User.id == user_id)
         async with db_session() as session:
@@ -19,7 +19,7 @@ class DbCommands:
             else:
                 return None
 
-    async def select_current_user(self, message: types.Message) -> User | None:
+    async def select_current_user(self, message: types.Message) -> User:
         db_session = message.bot.get("db")
         sql = select(User).where(User.telegram_id == message.from_user.id)
 

@@ -1,7 +1,7 @@
 from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, BotCommand, BotCommandScopeChat
 
+from tgbot.handlers.common import cancel
 from tgbot.keyboards.inline import UserMenu
 from tgbot.misc.states import UserState
 from tgbot.services.DbCommands import DbCommands
@@ -12,15 +12,28 @@ db = DbCommands()
 async def user_start(message: Message):
     user = await db.select_current_user(message=message)
     if not user:
+        await message.bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
+                                                    BotCommand('register', 'Регистрация'),
+                                                    BotCommand('cancel', 'Отмена')],
+                                          scope=BotCommandScopeChat(chat_id=message.from_user.id))
+
         await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию")
         await db.add_user(message=message)
         return
 
     if not user.isApproved:
+        await message.bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
+                                                    BotCommand('register', 'Регистрация'),
+                                                    BotCommand('cancel', 'Отмена')],
+                                          scope=BotCommandScopeChat(chat_id=message.from_user.id))
+
         await message.answer(text="Вы еще не прошли авторизацию. Обратитесь к администратору.")
         return
 
     await message.answer(text=f"Привет {user.full_name}", reply_markup=UserMenu)
+    await message.bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
+                                                BotCommand('cancel', 'Отмена')],
+                                      scope=BotCommandScopeChat(chat_id=message.from_user.id))
     await UserState.Menu.set()
 
 
@@ -36,21 +49,9 @@ async def info_about_me(call: types.CallbackQuery):
         text += f"Tel: {p[0].numbers}\n"
     for a in addresses:
         text += f"Address: {a[0].house}/{a[0].apartment}\n"
+
     await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
     await UserState.InfoAboutMe.set()
-
-
-async def cancel(message: types.Message, state: FSMContext):
-    """
-      Allow user to cancel any action
-    """
-    current_state = await state.get_state()
-    if current_state is None:
-        return
-
-    await state.finish()
-    # And remove keyboard (just in case)
-    await message.reply('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
 
 
 def register_user(dp: Dispatcher):

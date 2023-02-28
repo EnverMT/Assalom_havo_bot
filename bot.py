@@ -2,12 +2,12 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.types import BotCommand
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from tgbot.config import load_config
-from tgbot.filters.admin import AdminFilter
+from tgbot.filters.admin import AdminFilter, DomkomFilter
 from tgbot.handlers.admin import register_admin
+from tgbot.handlers.domkom import register_domkom
 from tgbot.handlers.user import register_user
 from tgbot.handlers.register import register_register_menu
 from tgbot.middlewares.environment import EnvironmentMiddleware
@@ -24,17 +24,16 @@ def register_all_middlewares(dp, config):
 
 def register_all_filters(dp):
     dp.filters_factory.bind(AdminFilter)
+    dp.filters_factory.bind(DomkomFilter)
 
 
 def register_all_handlers(dp):
     register_admin(dp)
+    register_domkom(dp)
     register_user(dp)
     register_register_menu(dp)
 
-async def set_default_commands(bot : Bot):
-    return await bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
-                                               BotCommand('register', 'Пройти регистрацию'),
-                                               BotCommand('cancel', 'Отмена')])
+
 
 
 async def main():
@@ -68,8 +67,6 @@ async def main():
     register_all_middlewares(dp, config)
     register_all_filters(dp)
     register_all_handlers(dp)
-
-    await set_default_commands(bot)
 
     # start
     try:
