@@ -5,7 +5,10 @@ from tgbot.handlers.common import list_of_domkoms
 from tgbot.keyboards.inline import AdminMenu
 from tgbot.misc.states import AdminState, UserApprovalState
 
-from tgbot.handlers.common import list_of_waiting_approval_users, waiting_approval_user, approve_user
+from tgbot.handlers.common import (list_of_waiting_approval_users,
+                                   waiting_approval_user,
+                                   approve_user,
+                                   add_new_domkom)
 
 
 

@@ -106,6 +106,12 @@ async def list_of_domkoms(call: types.CallbackQuery, state: FSMContext):
         await call.bot.send_message(chat_id=call.from_user.id, text="Домкомы:", reply_markup=domkoms_list_buttons)
 
 
+async def add_new_domkom(call: types.CallbackQuery, state: FSMContext):
+    pass
+
+
+
+
 async def cancel(message: types.Message, state: FSMContext):
     """
       Allow user to cancel any action
