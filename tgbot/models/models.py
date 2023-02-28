@@ -31,3 +31,7 @@ class Phone(Base):
     numbers = Column(String(15), unique=True)
     user_id = Column(BigInteger, ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True))
+
+    def __repr__(self):
+        return "<Phone(id='{}', numbers='{}', user_id='{}')>".format(
+            self.id, self.numbers, self.user_id)
