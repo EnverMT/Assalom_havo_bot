@@ -39,22 +39,6 @@ class DbCommands:
             await session.execute(sql)
             return await session.commit()
 
-    async def add_phone(self, message: types.Message):
-        user: User = await self.select_current_user(message=message)
-        db_session = message.bot.get("db")
-        sql = insert(Phone).values(user_id=user.id,
-                                   numbers=str(message.contact.phone_number))
-        async with db_session() as session:
-            await session.execute(sql)
-            return await session.commit()
-
-    async def get_user_phones(self, message: types.Message) -> List[Tuple[Phone]]:
-        user = await self.select_current_user(message=message)
-        db_session = message.bot.get("db")
-        sql = select(Phone).where(Phone.user_id == user.id)
-        async with db_session() as session:
-            result = await session.execute(sql)
-            return result.all()
 
     async def is_phone_exist(self, message: types.Message) -> Boolean:
         db_session = message.bot.get("db")

@@ -27,8 +27,8 @@ async def check_register_status(message: types.Message, state: FSMContext):
         await message.answer(text=f"Вы уже прошли регистрацию {user.full_name}")
         return
 
-    is_phone_exist = await db.is_phone_exist(message)
-    if is_phone_exist:
+    phones = await user.get_phones(message)
+    if phones:
         await message.answer(text="Ваша заявка под рассмотрением")
         return
 
