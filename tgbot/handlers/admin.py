@@ -3,12 +3,13 @@ from aiogram.types import Message, BotCommand, BotCommandScope, BotCommandScopeC
 
 from tgbot.handlers.common import list_of_domkoms
 from tgbot.keyboards.inline import AdminMenu
-from tgbot.misc.states import AdminState, UserApprovalState
+from tgbot.misc.states import AdminState, UserApprovalState, DomkomControlState
 
 from tgbot.handlers.common import (list_of_waiting_approval_users,
                                    waiting_approval_user,
                                    approve_user,
-                                   add_new_domkom)
+                                   add_new_domkom,
+                                   assign_new_domkom)
 
 
 
@@ -36,3 +37,9 @@ def register_admin(dp: Dispatcher):
                                        state=AdminState.Menu,
                                        text_contains="list_of_domkoms",
                                        is_admin=True)
+
+    dp.register_callback_query_handler(add_new_domkom,
+                                       state=DomkomControlState.ListOfDomkoms)
+
+    dp.register_callback_query_handler(assign_new_domkom,
+                                       state=DomkomControlState.AddNewDomkom)

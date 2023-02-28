@@ -69,9 +69,11 @@ class User(Base):
         return "<User(id='{}', fullname='{}', username='{}')>".format(
             self.id, self.full_name, self.username)
 
-    async def is_domkom(self, call: types.CallbackQuery | types.Message) -> bool:
+    async def is_domkom(self, call: types.CallbackQuery | types.Message, user_id = 0) -> bool:
+        if user_id == 0:
+            user_id = call.from_user.id
         db_session = call.bot.get("db")
-        sql = select(User).join(Domkom, Domkom.telegram_id == call.from_user.id)
+        sql = select(User).join(Domkom, Domkom.user_id == user_id)
         async with db_session() as session:
             result = await session.execute(sql)
             row: List[User] = result.first()
