@@ -3,11 +3,10 @@ Description=Assalom_Havo_bot
 After=network.target
 
 [Service]
-User=tgbot
-Group=tgbot
+User=ubuntu
 Type=simple
-WorkingDirectory=/opt/tgbot
-ExecStart=/opt/tgbot/venv/bin/python bot.py
+WorkingDirectory=/home/ubuntu/Assalom_havo_bot
+ExecStart=/usr/bin/python3 /home/ubuntu/Assalom_havo_bot/bot.py
 Restart=always
 
 [Install]
