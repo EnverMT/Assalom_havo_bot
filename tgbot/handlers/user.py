@@ -26,7 +26,7 @@ async def user_start(message: Message):
                                                     BotCommand('cancel', 'Отмена')],
                                           scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-        await message.answer(text="Вы еще не прошли авторизацию. Обратитесь к администратору.")
+        await message.answer(text="Вы еще не прошли авторизацию. Оставьте заявку (/register) и ждите ответа Домкома")
         return
 
     await message.answer(text=f"Привет {user.full_name}", reply_markup=UserMenu)
