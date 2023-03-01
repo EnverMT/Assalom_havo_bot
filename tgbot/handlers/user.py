@@ -17,7 +17,7 @@ async def user_start(message: Message):
                                                     BotCommand('cancel', 'Отмена')],
                                           scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-        await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию")
+        await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию. /register")
         await db.add_user(message=message)
         return
 
