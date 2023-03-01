@@ -10,6 +10,7 @@ from tgbot.handlers.admin import register_admin
 from tgbot.handlers.domkom import register_domkom
 from tgbot.handlers.user import register_user
 from tgbot.handlers.register import register_register_menu
+from tgbot.handlers.common import register_common
 from tgbot.middlewares.environment import EnvironmentMiddleware
 from tgbot.services.Base import Base
 
@@ -31,6 +32,7 @@ def register_all_handlers(dp):
     register_admin(dp)
     register_domkom(dp)
     register_user(dp)
+    register_common(dp)
     register_register_menu(dp)
 
 

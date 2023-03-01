@@ -68,7 +68,7 @@ class User(Base):
 
     async def is_domkom(self, call: types.CallbackQuery | types.Message, user_id = 0) -> bool:
         if user_id == 0:
-            user_id = call.from_user.id
+            user_id = self.id
         db_session = call.bot.get("db")
         sql = select(User).join(Domkom, Domkom.user_id == user_id)
         async with db_session() as session:

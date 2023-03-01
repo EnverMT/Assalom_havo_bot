@@ -60,6 +60,7 @@ async def register_get_address_house(message: types.Message, state: FSMContext):
 
 
 async def register_get_address_apartment(message: types.Message, state: FSMContext):
+
     if not message.text.isnumeric():
         await message.reply(text="Введите корректный номер квартиры")
         return
@@ -69,20 +70,11 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
         await message.reply(text="Введите корректный номер квартиры")
         return
     await state.update_data(user_address_apartment=apartment_num)
-
-    await message.answer(f"Ваша заявка была принята:", reply_markup=types.ReplyKeyboardRemove())
-
     user_data = await state.get_data()
-    text = f"Имя: {message.from_user.full_name}\n"
-    text += f"Телефон: {user_data['user_phone']}\n"
-    text += f"Дом: {user_data['user_address_house']}\n"
-    text += f"Квартира: {user_data['user_address_apartment']}"
-    await message.answer(text=text)
-    current_user = await db.select_current_user(message=message)
 
-    db_session = message.bot.get("db")
     sql_get_address_id = select(Address).where(Address.house == int(user_data['user_address_house']),
                                                Address.apartment == int(user_data['user_address_apartment']))
+    db_session = message.bot.get("db")
     async with db_session() as session:
         address_res = await session.execute(sql_get_address_id)
         address: List[Address] = address_res.first()
@@ -90,6 +82,14 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
         await message.reply(text="Адрес не существует в базе")
         return
 
+    await message.answer(f"Ваша заявка была принята:", reply_markup=types.ReplyKeyboardRemove())
+    text = f"Имя: {message.from_user.full_name}\n"
+    text += f"Телефон: {user_data['user_phone']}\n"
+    text += f"Дом: {user_data['user_address_house']}\n"
+    text += f"Квартира: {user_data['user_address_apartment']}"
+    await message.answer(text=text)
+
+    current_user = await db.select_current_user(message=message)
     sql_phone = insert(Phone).values(numbers=user_data['user_phone'],
                                      user_id=current_user.id)
     sql_propiska = insert(Propiska).values(user_id=current_user.id,

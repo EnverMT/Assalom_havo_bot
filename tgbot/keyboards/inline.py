@@ -11,7 +11,8 @@ AdminMenu = InlineKeyboardMarkup(
 DomkomMenu = InlineKeyboardMarkup(
         inline_keyboard=
         [
-            [InlineKeyboardButton(text="Список ожидаемых пользователей", callback_data="list_of_waiting_approval_users")]
+            [InlineKeyboardButton(text="Список ожидаемых пользователей", callback_data="list_of_waiting_approval_users")],
+            [InlineKeyboardButton(text="Информация обо мне", callback_data="info_aboutme")]
         ]
     )
 
