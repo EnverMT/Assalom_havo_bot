@@ -15,12 +15,12 @@ class Address(Base):
     id = Column(Integer, primary_key=True)
     house = Column(Integer, nullable=False)
     apartment = Column(Integer, nullable=False)
-    gaz_litsevoy_schet = Column(Integer, nullable=False)
-    owner_fio = Column(String(100), nullable=False)
-    owner_tel = Column(String(20), nullable=False)
-    room_size = Column(String(20), nullable=False)
-    kadastr_number = Column(String(30), nullable=False)
-    gaz_schetchik_nomer = Column(String(20), nullable=False)
+    gaz_litsevoy_schet = Column(Integer)
+    owner_fio = Column(String(100))
+    owner_tel = Column(String(20))
+    room_size = Column(String(20))
+    kadastr_number = Column(String(30))
+    gaz_schetchik_nomer = Column(String(20))
 
     def __repr__(self):
         return "<Address(id='{}', house='{}', apartment='{}')>".format(
