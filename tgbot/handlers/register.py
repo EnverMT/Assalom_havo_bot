@@ -1,10 +1,12 @@
+from typing import List
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 
 from tgbot.keyboards.reply import contact_request
 from tgbot.misc.states import RegisterState
-from tgbot.models.models import Phone, Address
+from tgbot.models.models import Phone, Address, Propiska
 from tgbot.services.DbCommands import DbCommands
 
 """
@@ -30,7 +32,8 @@ async def check_register_status(message: types.Message, state: FSMContext):
         await message.answer(text="Ваша заявка под рассмотрением")
         return
 
-    await message.answer(text=f"Для продолжения регистрации, прошу предоставит ваши Контакты {user.full_name}", reply_markup=contact_request)
+    await message.answer(text=f"Для продолжения регистрации, прошу предоставит ваши Контакты {user.full_name}",
+                         reply_markup=contact_request)
     await RegisterState.ReadyToRegister.set()
 
 
@@ -68,6 +71,7 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
     await state.update_data(user_address_apartment=apartment_num)
 
     await message.answer(f"Ваша заявка была принята:", reply_markup=types.ReplyKeyboardRemove())
+
     user_data = await state.get_data()
     text = f"Имя: {message.from_user.full_name}\n"
     text += f"Телефон: {user_data['user_phone']}\n"
@@ -76,16 +80,24 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
     await message.answer(text=text)
     current_user = await db.select_current_user(message=message)
 
+    db_session = message.bot.get("db")
+    sql_get_address_id = select(Address).where(Address.house == int(user_data['user_address_house']),
+                                               Address.apartment == int(user_data['user_address_apartment']))
+    async with db_session() as session:
+        address_res = await session.execute(sql_get_address_id)
+        address: List[Address] = address_res.first()
+    if not address:
+        await message.reply(text="Адрес не существует в базе")
+        return
+
     sql_phone = insert(Phone).values(numbers=user_data['user_phone'],
                                      user_id=current_user.id)
-    sql_address = insert(Address).values(house=int(user_data['user_address_house']),
-                                         apartment=int(user_data['user_address_apartment']),
-                                         user_id=current_user.id)
+    sql_propiska = insert(Propiska).values(user_id=current_user.id,
+                                           address_id=address[0].id)
 
-    db_session = message.bot.get("db")
     async with db_session() as session:
         await session.execute(sql_phone)
-        await session.execute(sql_address)
+        await session.execute(sql_propiska)
         await session.commit()
 
     await state.finish()

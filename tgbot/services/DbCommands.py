@@ -40,18 +40,6 @@ class DbCommands:
             return await session.commit()
 
 
-    async def is_phone_exist(self, message: types.Message) -> Boolean:
-        db_session = message.bot.get("db")
-        user = await self.select_current_user(message)
-        sql = select(Phone).where(Phone.user_id == user.id)
-        async with db_session() as session:
-            result = await session.execute(sql)
-            rows = result.all()
-            if rows:
-                return True
-            else:
-                return False
-
     async def get_list_of_waiting_approval_users(self, call: types.CallbackQuery):
         db_session = call.bot.get("db")
         sql = select(User, Phone).join(Phone, User.id == Phone.user_id).where(User.isApproved == None)

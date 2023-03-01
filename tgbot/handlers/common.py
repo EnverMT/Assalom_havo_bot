@@ -36,13 +36,12 @@ async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
 
     db_session = call.bot.get("db")
     sql_phone = select(models.Phone).where(models.Phone.user_id == int(user.id))
-    sql_addresses = select(models.Address).where(models.Address.user_id == int(user.id))
+    addresses = await user.get_addresses(call=call)
 
     async with db_session() as session:
         phones = await session.execute(sql_phone)
-        addresses = await session.execute(sql_addresses)
         phone_list: List[Tuple[models.Phone]] = phones.all()
-        addresses_list: List[Tuple[models.Address]] = addresses.all()
+        addresses_list: List[Tuple[models.Address]] = addresses
         if phone_list:
             for phone_tuple in phone_list:
                 text += f"Tel: {phone_tuple[0].numbers}\n"
