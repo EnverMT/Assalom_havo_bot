@@ -3,6 +3,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 class RegisterState(StatesGroup):
     ReadyToRegister = State()
+    fio = State()
     phone_number = State()
     address_house = State()
     address_apartment = State()

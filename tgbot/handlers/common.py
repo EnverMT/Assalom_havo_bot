@@ -32,7 +32,8 @@ async def list_of_waiting_approval_users(call: types.CallbackQuery, state: FSMCo
 async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_reply_markup()
     user: models.User = await db.select_user(call=call, user_id=int(call.data))
-    text = f"Name: {user.full_name}\n"
+    text = f"Ник: {user.full_name}\n"
+    text += f"Имя: {user.fio}\n"
 
     phones = await user.get_phones(call=call)
     addresses = await user.get_addresses(call=call)
@@ -141,7 +142,8 @@ async def info_about_me(call: types.CallbackQuery):
     await call.message.edit_reply_markup()
 
     user = await db.select_current_user(call)
-    text = f"Full name: {user.full_name}\n"
+    text = f"Ник: {user.full_name}\n"
+    text += f"Имя: {user.fio}\n"
 
     addresses = await user.get_addresses(call=call)
     phones = await user.get_phones(call=call)

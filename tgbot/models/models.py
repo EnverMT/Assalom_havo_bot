@@ -62,6 +62,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     telegram_id = Column(BigInteger)
     full_name = Column(String(100))
+    fio = Column(String(100))
     username = Column(String(50))
     isApproved = Column(Boolean)
     whoApproved = Column(BigInteger)

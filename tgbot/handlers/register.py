@@ -2,11 +2,11 @@ from typing import List
 
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 
 from tgbot.keyboards.reply import contact_request
 from tgbot.misc.states import RegisterState
-from tgbot.models.models import Phone, Address, Propiska
+from tgbot.models.models import Phone, Address, Propiska, User
 from tgbot.services.DbCommands import DbCommands
 
 """
@@ -32,17 +32,24 @@ async def check_register_status(message: types.Message, state: FSMContext):
         await message.answer(text="Ваша заявка под рассмотрением")
         return
 
-    await message.answer(text=f"Для продолжения регистрации, прошу предоставит ваши Контакты {user.full_name}",
-                         reply_markup=contact_request)
+    await message.answer(text=f"Для продолжения регистрации, прошу написать Фамилию и Имю {user.full_name}")
     await RegisterState.ReadyToRegister.set()
+
+
+async def register_get_fio(message: types.Message, state: FSMContext):
+    await RegisterState.fio.set()
+    await state.update_data(fio=message.text)
+
+    await message.answer(text=f"Прошу предоставит ваш телефон Контакт.",
+                         reply_markup=contact_request)
 
 
 async def register_get_contact(message: types.Message, state: FSMContext):
     await RegisterState.phone_number.set()
     await state.update_data(user_phone=message.contact.phone_number)
-    await message.answer(f"Ввведите номер вашего дома: ", reply_markup=types.ReplyKeyboardRemove())
-    await RegisterState.address_house.set()
 
+    await message.answer(f"Ввведите номер вашего дома: (Только цифрами)", reply_markup=types.ReplyKeyboardRemove())
+    await RegisterState.address_house.set()
 
 async def register_get_address_house(message: types.Message, state: FSMContext):
     if not message.text.isnumeric():
@@ -56,7 +63,7 @@ async def register_get_address_house(message: types.Message, state: FSMContext):
     await state.update_data(user_address_house=house_num)
 
     await RegisterState.address_apartment.set()
-    await message.answer(f"Ввведите номер вашей квартиры: ", reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(f"Ввведите номер вашей квартиры: (Только цифрами)", reply_markup=types.ReplyKeyboardRemove())
 
 
 async def register_get_address_apartment(message: types.Message, state: FSMContext):
@@ -83,7 +90,8 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
         return
 
     await message.answer(f"Ваша заявка была принята:", reply_markup=types.ReplyKeyboardRemove())
-    text = f"Имя: {message.from_user.full_name}\n"
+    text = f"Ник: {message.from_user.full_name}\n"
+    text += f"Имя: {user_data['fio']}\n"
     text += f"Телефон: {user_data['user_phone']}\n"
     text += f"Дом: {user_data['user_address_house']}\n"
     text += f"Квартира: {user_data['user_address_apartment']}"
@@ -94,10 +102,12 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
                                      user_id=current_user.id)
     sql_propiska = insert(Propiska).values(user_id=current_user.id,
                                            address_id=address[0].id)
+    sql_user = update(User).values(fio=user_data['fio']).where(User.telegram_id == message.from_user.id)
 
     async with db_session() as session:
         await session.execute(sql_phone)
         await session.execute(sql_propiska)
+        await session.execute(sql_user)
         await session.commit()
 
     await state.finish()
@@ -106,8 +116,9 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
 
 def register_register_menu(dp: Dispatcher):
     dp.register_message_handler(check_register_status, commands=["register"], state='*')
+    dp.register_message_handler(register_get_fio, state=RegisterState.ReadyToRegister)
     dp.register_message_handler(register_get_contact,
-                                state=RegisterState.ReadyToRegister,
+                                state=RegisterState.fio,
                                 content_types=types.ContentType.CONTACT)
     dp.register_message_handler(register_get_address_house,
                                 state=RegisterState.address_house)
