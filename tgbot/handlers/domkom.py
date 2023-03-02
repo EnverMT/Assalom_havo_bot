@@ -24,4 +24,6 @@ def register_domkom(dp: Dispatcher):
     dp.register_callback_query_handler(waiting_approval_user,
                                        state=UserApprovalState.ListOfWaitingApprovalUsers,
                                        is_domkom=True)
-    dp.register_callback_query_handler(approve_user, state=UserApprovalState.WaitingApprovalUser, is_domkom=True)
+    dp.register_callback_query_handler(approve_user,
+                                       state=UserApprovalState.WaitingApprovalUser,
+                                       is_domkom=True)

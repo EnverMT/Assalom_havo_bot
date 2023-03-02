@@ -69,7 +69,7 @@ async def approve_user(call: types.CallbackQuery, state: FSMContext):
 
         await call.bot.send_message(chat_id=call.from_user.id, text="Approved")
         user: models.User = await db.select_user(call=call, user_id=user_id)
-        await call.bot.send_message(chat_id=user.telegram_id, text="Ваша заявка была одобрена")
+        await call.bot.send_message(chat_id=user.telegram_id, text="Ваша заявка была одобрена. Нажмите /start.")
     else:
         await call.answer(text="Заявка отменена")
 
