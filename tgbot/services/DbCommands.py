@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from aiogram import types
 from aiogram.types.base import Boolean, Integer
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, update
 
 from tgbot.models.models import User, Phone
 
@@ -34,7 +34,8 @@ class DbCommands:
     async def add_user(self, message: types.Message):
         db_session = message.bot.get("db")
         sql = insert(User).values(telegram_id=message.from_user.id,
-                                  full_name=message.from_user.full_name)
+                                  full_name=message.from_user.full_name,
+                                  username=message.from_user.username)
         async with db_session() as session:
             await session.execute(sql)
             return await session.commit()

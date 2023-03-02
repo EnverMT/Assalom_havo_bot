@@ -20,6 +20,8 @@ async def user_start(message: Message):
         await db.add_user(message=message)
         return
 
+    await user.update_self_username(call=message)
+
     if not user.isApproved:
         await message.bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
                                                     BotCommand('register', 'Регистрация'),

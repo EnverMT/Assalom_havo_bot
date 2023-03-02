@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from aiogram import types
-from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, select, UniqueConstraint
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, select, UniqueConstraint, update
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.sql import func
@@ -83,6 +83,15 @@ class User(Base):
             result = await session.execute(sql)
             row: List[User] = result.first()
             return True if row else False
+
+    async def update_self_username(self, call: types.CallbackQuery | types.Message):
+        db_session = call.bot.get("db")
+        print(call.from_user.username)
+        sql = update(User).values(username=call.from_user.username).where(User.telegram_id == self.telegram_id)
+        async with db_session() as session:
+            await session.execute(sql)
+            await session.commit()
+
 
     async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[Tuple[Address]]:
         db_session = call.bot.get("db")
