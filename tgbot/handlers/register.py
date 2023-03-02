@@ -97,6 +97,8 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
     text += f"Дом: {user_data['user_address_house']}\n"
     text += f"Квартира: {user_data['user_address_apartment']}"
     await message.answer(text=text)
+    await message.answer(f"Домком может Вам позвонить по номеру {user_data['user_address_house']} для уточнения деталей")
+    await message.answer(f"Если Ваш телеграм номер недоступна для входящих звонков, могут быть задержки одобрения")
 
     current_user = await db.select_current_user(message=message)
     sql_phone = insert(Phone).values(numbers=user_data['user_phone'],
