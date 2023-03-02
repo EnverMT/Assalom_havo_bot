@@ -57,7 +57,8 @@ async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
 async def approve_user(call: types.CallbackQuery, state: FSMContext):
     db_session = call.bot.get("db")
     user_data = await state.get_data()
-    user_id = user_data['user_id']
+    user_id = int(user_data['user_id'])
+    await call.message.edit_reply_markup()
 
     if call.data == "Approve":
         sql = update(models.User).values(isApproved=True, whoApproved=call.from_user.id).where(
@@ -66,18 +67,19 @@ async def approve_user(call: types.CallbackQuery, state: FSMContext):
             await session.execute(sql)
             await session.commit()
 
-        await call.message.edit_reply_markup()
         await call.bot.send_message(chat_id=call.from_user.id, text="Approved")
         user: models.User = await db.select_user(call=call, user_id=user_id)
         await call.bot.send_message(chat_id=user.telegram_id, text="Ваша заявка была одобрена")
     else:
+        await call.answer(text="Заявка отменена")
+
         sql = delete(models.User).where(models.User.id == user_id)
         async with db_session() as session:
             await session.execute(sql)
             await session.commit()
-        await call.bot.send_message(chat_id=user_id, text="Ваша заявка отклонена по причине содержания неверной информации. Свяжитесь с Администратором для уточнения.")
         await state.reset_state()
         await state.finish()
+
 
 
 async def list_of_domkoms(call: types.CallbackQuery, state: FSMContext):
