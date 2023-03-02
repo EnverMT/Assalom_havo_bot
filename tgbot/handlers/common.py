@@ -155,6 +155,7 @@ async def info_about_me(call: types.CallbackQuery):
         text += f"Размер квартиры - {a[0].room_size}\n"
         text += f"Номер кадастра - {a[0].kadastr_number}\n"
         text += f"Номер счетчика газа - {a[0].gaz_schetchik_nomer}\n"
+        text += f"Мусор л.с. - {a[0].musor_ls}\n"
 
     await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
 
