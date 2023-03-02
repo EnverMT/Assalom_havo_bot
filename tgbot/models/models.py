@@ -86,7 +86,6 @@ class User(Base):
 
     async def update_self_username(self, call: types.CallbackQuery | types.Message):
         db_session = call.bot.get("db")
-        print(call.from_user.username)
         sql = update(User).values(username=call.from_user.username).where(User.telegram_id == self.telegram_id)
         async with db_session() as session:
             await session.execute(sql)
