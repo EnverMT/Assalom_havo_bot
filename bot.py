@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from tgbot.config import load_config
@@ -58,7 +58,7 @@ async def main():
         engine, expire_on_commit=False, class_=AsyncSession
     )
 
-    bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+    bot = Bot(token=config.tg_bot.token, parse_mode=types.ParseMode.HTML)
     bot["db"] = async_sessionmaker
     bot['config'] = config
     bot['logger'] = logger

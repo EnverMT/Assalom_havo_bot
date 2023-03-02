@@ -151,11 +151,11 @@ async def info_about_me(call: types.CallbackQuery):
         text += f"Tel: {p[0].numbers}\n"
     for a in addresses:
         text += f"Address: {a[0].house}/{a[0].apartment}\n"
-        text += f"Газ л.с. - {a[0].gaz_litsevoy_schet}\n"
+        text += f"Газ л.с. - <code>{a[0].gaz_litsevoy_schet}</code>\n"
         text += f"Размер квартиры - {a[0].room_size}\n"
-        text += f"Номер кадастра - {a[0].kadastr_number}\n"
+        text += f"Номер кадастра - <code>{a[0].kadastr_number}</code>\n"
         text += f"Номер счетчика газа - {a[0].gaz_schetchik_nomer}\n"
-        text += f"Мусор л.с. - {a[0].musor_ls}\n"
+        text += f"Мусор л.с. - <code>{a[0].musor_ls}</code>\n"
 
     await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
 

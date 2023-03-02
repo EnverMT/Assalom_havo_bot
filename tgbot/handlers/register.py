@@ -1,6 +1,7 @@
 from typing import List
 
 from aiogram import types, Dispatcher
+from aiogram.utils.markdown import quote_html
 from aiogram.dispatcher import FSMContext
 from sqlalchemy import insert, select, update
 
@@ -38,7 +39,7 @@ async def check_register_status(message: types.Message, state: FSMContext):
 
 async def register_get_fio(message: types.Message, state: FSMContext):
     await RegisterState.fio.set()
-    await state.update_data(fio=message.text)
+    await state.update_data(fio=quote_html(message.text))
 
     await message.answer(text=f"Прошу предоставит ваш телефон Контакт.",
                          reply_markup=contact_request)
@@ -56,7 +57,7 @@ async def register_get_address_house(message: types.Message, state: FSMContext):
         await message.reply(text="Введите корректный номер дома")
         return
 
-    house_num = int(message.text)
+    house_num = int(quote_html(message.text))
     if house_num > 49 or house_num < 42:
         await message.reply(text="Введите корректный номер дома")
         return
@@ -72,7 +73,7 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
         await message.reply(text="Введите корректный номер квартиры")
         return
 
-    apartment_num = int(message.text)
+    apartment_num = int(quote_html(message.text))
     if apartment_num > 90 or apartment_num < 0:
         await message.reply(text="Введите корректный номер квартиры")
         return
