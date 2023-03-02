@@ -21,7 +21,7 @@ class Address(Base):
     room_size = Column(String(20))
     kadastr_number = Column(String(30))
     gaz_schetchik_nomer = Column(String(20))
-    musor_ls = Column(BigInteger)
+    musor_ls = Column(String(30))
 
     def __repr__(self):
         return "<Address(id='{}', house='{}', apartment='{}')>".format(

@@ -71,13 +71,13 @@ async def approve_user(call: types.CallbackQuery, state: FSMContext):
         user: models.User = await db.select_user(call=call, user_id=user_id)
         await call.bot.send_message(chat_id=user.telegram_id, text="Ваша заявка была одобрена")
     else:
-        await state.reset_state()
-        await state.finish()
         sql = delete(models.User).where(models.User.id == user_id)
         async with db_session() as session:
             await session.execute(sql)
             await session.commit()
-        await call.bot.send_message(chat_id=call.from_user.id, text="Ваша заявка отклонена по причине содержания неверной информации. Свяжитесь с Администратором для уточнения.")
+        await call.bot.send_message(chat_id=user_id, text="Ваша заявка отклонена по причине содержания неверной информации. Свяжитесь с Администратором для уточнения.")
+        await state.reset_state()
+        await state.finish()
 
 
 async def list_of_domkoms(call: types.CallbackQuery, state: FSMContext):
