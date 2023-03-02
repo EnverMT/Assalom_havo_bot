@@ -77,7 +77,7 @@ async def approve_user(call: types.CallbackQuery, state: FSMContext):
         async with db_session() as session:
             await session.execute(sql)
             await session.commit()
-        await call.bot.send_message(chat_id=call.from_user.id, text="Denied")
+        await call.bot.send_message(chat_id=call.from_user.id, text="Ваша заявка отклонена по причине содержания неверной информации. Свяжитесь с Администратором для уточнения.")
 
 
 async def list_of_domkoms(call: types.CallbackQuery, state: FSMContext):
