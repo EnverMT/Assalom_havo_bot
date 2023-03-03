@@ -102,12 +102,12 @@ class User(Base):
             result = await session.execute(sql_addresses)
             return result.scalars().all()
 
-    async def get_phones(self, call: types.CallbackQuery | types.Message) -> List[Tuple[Phone]]:
+    async def get_phones(self, call: types.CallbackQuery | types.Message) -> List[Phone]:
         db_session = call.bot.get("db")
         sql = select(Phone).where(Phone.user_id == self.id)
         async with db_session() as session:
             result = await session.execute(sql)
-            return result.all()
+            return result.scalars().all()
 
 
 class Propiska(Base):

@@ -38,8 +38,8 @@ async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
     addresses = await user.get_addresses(call=call)
 
     if phones:
-        for phone_tuple in phones:
-            text += f"Tel: {phone_tuple[0].numbers}\n"
+        for p in phones:
+            text += f"Tel: {p.numbers}\n"
     if addresses:
         for addr in addresses:
             text += f"Address: {addr.house}/{addr.apartment}\n"

@@ -5,6 +5,7 @@ AdminMenu = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton(text="Добавить нового домкома", callback_data="add_new_domkom")],
             [InlineKeyboardButton(text="Список домкомов", callback_data="list_of_domkoms")],
+            [InlineKeyboardButton(text="Список зарегистрированных жителей", callback_data="list_of_approved_users")],
             [InlineKeyboardButton(text="Список ожидаемых пользователей", callback_data="list_of_waiting_approval_users")]
         ]
     )

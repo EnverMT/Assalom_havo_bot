@@ -49,14 +49,17 @@ async def list_of_approved_users_by_phone_get_users(message: types.Message, stat
                                         .where(models.Phone.numbers.contains(message.text))))\
             .scalars().all()
     for user in users:
-        text = f"Ник: {user.full_name}\t  "
+        addr: List[models.Address] = await user.get_addresses(call=message)
+        phones = await user.get_phones(call=message)
+        text = f"Ник: {user.full_name}\n"
+        text += f"Имя: {user.fio}\n\n"
+        for a in addr:
+            text += f"Address: {a.house}/{a.apartment}\n"
+        text += "\n"
+        for p in phones:
+            text += f"Tel: {p.numbers}\n"
 
-        print(user.full_name)
-
-
-
-
-
+        await message.answer(text=text)
 
 
 async def list_of_approved_users_by_house(call: types.CallbackQuery, state: FSMContext):
@@ -86,6 +89,7 @@ def register_domkom(dp: Dispatcher):
     dp.register_callback_query_handler(approve_user,
                                        state=UserApprovalState.WaitingApprovalUser,
                                        is_domkom=True)
+
 
     dp.register_callback_query_handler(list_of_approved_users,
                                        state=DomkomState.Menu,

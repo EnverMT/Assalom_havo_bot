@@ -17,7 +17,7 @@ async def info_about_me(call: types.CallbackQuery):
 
     phones = await user.get_phones(call=call)
     for p in phones:
-        text += f"Tel: {p[0].numbers}\n"
+        text += f"Tel: {p.numbers}\n"
     await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
 
     for a in addr:
