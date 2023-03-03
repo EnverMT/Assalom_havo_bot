@@ -31,7 +31,10 @@ def register_admin(dp: Dispatcher):
     dp.register_callback_query_handler(waiting_approval_user,
                                        state=UserApprovalState.ListOfWaitingApprovalUsers,
                                        is_admin=True)
-    dp.register_callback_query_handler(approve_user, state=UserApprovalState.WaitingApprovalUser, is_admin=True)
+    dp.register_callback_query_handler(approve_user,
+                                       state=UserApprovalState.WaitingApprovalUser,
+                                       is_admin=True)
+
 
     dp.register_callback_query_handler(list_of_domkoms,
                                        state=AdminState.Menu,
@@ -39,9 +42,10 @@ def register_admin(dp: Dispatcher):
                                        is_admin=True)
 
     dp.register_callback_query_handler(add_new_domkom,
-                                       state=DomkomControlState.ListOfDomkoms,
+                                       state=AdminState.Menu,
                                        text_contains="add_new_domkom",
                                        is_admin=True)
 
     dp.register_callback_query_handler(assign_new_domkom,
-                                       state=DomkomControlState.AddNewDomkom)
+                                       state=DomkomControlState.AddNewDomkom,
+                                       is_admin=True)

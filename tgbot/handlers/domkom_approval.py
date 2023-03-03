@@ -26,7 +26,6 @@ async def list_of_domkoms(call: types.CallbackQuery, state: FSMContext):
             await call.bot.send_message(chat_id=call.from_user.id, text="Нет домкомов")
 
         domkoms_list_buttons = InlineKeyboardMarkup()
-        domkoms_list_buttons.add(InlineKeyboardButton(text="Добавить нового домкома", callback_data="add_new_domkom"))
         for user, phone in domkoms:
             domkoms_list_buttons.add(
                 InlineKeyboardButton(text=f"{user.full_name} / {phone.numbers}", callback_data=user.id))
@@ -46,6 +45,9 @@ async def add_new_domkom(call: types.CallbackQuery, state: FSMContext):
 
         users_list_buttons = InlineKeyboardMarkup()
         for user, phone in users:
+            is_domkom = await user.is_domkom(call=call)
+            if is_domkom:
+                continue
             users_list_buttons.add(
                 InlineKeyboardButton(text=f"{user.full_name} / {phone.numbers}", callback_data=user.id))
         await call.bot.send_message(chat_id=call.from_user.id, text="Кандидаты:", reply_markup=users_list_buttons)
