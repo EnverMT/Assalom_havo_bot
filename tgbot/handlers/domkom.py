@@ -59,6 +59,49 @@ async def list_of_approved_users_by_house(call: types.CallbackQuery, state: FSMC
     await call.bot.send_message(chat_id=call.from_user.id, text="Введите номер дома:")
 
 
+async def list_of_approved_users_by_house_get_users(message: types.Message, state: FSMContext):
+    user_data = await state.get_data()
+    """
+    if not user_data.get():
+        if not message.text.isnumeric():
+            await message.answer(text="Введите только цифру")
+            return
+        async with message.bot.get("db")() as session:
+            house: models.Address = (await session.execute(select(models.Address)
+                                                           .where(models.Address.house == int(message.text)))) \
+                .scalars().all()
+        if not house:
+            await message.answer(text="Такой дом не существует в базе")
+            return
+        await state.update_data(house_number = house.house)
+
+    if message.text != '*':
+        if not message.text.isnumeric():
+            await message.answer(text="Введите только цифру")
+            return
+        async with message.bot.get("db")() as session:
+            apartment: models.Address = (await session.execute(select(models.Address)
+                                                           .where(models.Address.apartment == int(message.text)))) \
+                .scalars().all()
+        if not apartment:
+            await message.answer(text="Такой квартиры не существует в базе")
+            return
+
+    await state.reset_state()
+
+    async with message.bot.get("db")() as session:
+        users: List[models.User] = \
+            (await session.execute(select(models.User)
+                                   .join(models.Propiska)
+                                   .join(models.Address)
+                                   .where(models.Address.house == house &
+                                          models.Address.apartment == apartment))) \
+            .scalars().all()
+
+    await list_of_approved_users_return_user_list(message=message, state=state, users=users)
+    """
+
+
 async def list_of_approved_users_by_name(call: types.CallbackQuery, state: FSMContext):
     await UserListState.FilterByName.set()
     await call.message.edit_reply_markup()
