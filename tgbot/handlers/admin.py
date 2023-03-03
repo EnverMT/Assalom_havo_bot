@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 from aiogram.types import Message, BotCommand, BotCommandScopeChat
 
-from tgbot.handlers.common import (list_of_waiting_approval_users,
+from tgbot.handlers.user_approval import (list_of_waiting_approval_users,
                                    waiting_approval_user,
                                    approve_user
                                    )

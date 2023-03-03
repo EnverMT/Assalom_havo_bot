@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
 
-from tgbot.handlers.common import list_of_waiting_approval_users, waiting_approval_user, approve_user
+from tgbot.handlers.user_approval import list_of_waiting_approval_users, waiting_approval_user, approve_user
 from tgbot.keyboards.inline import DomkomMenu
 from tgbot.misc.states import DomkomState, UserApprovalState
 from tgbot.services.DbCommands import DbCommands
