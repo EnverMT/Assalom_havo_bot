@@ -5,7 +5,7 @@ from tgbot.handlers.domkom import (list_of_approved_users,
                                    list_of_approved_users_by_phone,
                                    list_of_approved_users_by_house,
                                    list_of_approved_users_by_name,
-                                   list_of_approved_users_by_phone_get_users)
+                                   list_of_approved_users_by_phone_get_users, list_of_approved_users_by_name_get_users)
 
 from tgbot.handlers.user_approval import (list_of_waiting_approval_users,
                                    waiting_approval_user,
@@ -79,3 +79,6 @@ def register_admin(dp: Dispatcher):
                                        state=UserListState.Menu,
                                        text="list_of_approved_users_by_name",
                                        is_admin=True)
+    dp.register_message_handler(list_of_approved_users_by_name_get_users,
+                                state=UserListState.FilterByName,
+                                is_admin=True)
