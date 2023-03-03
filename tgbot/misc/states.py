@@ -29,6 +29,13 @@ class DomkomState(StatesGroup):
     Menu = State()
 
 
+class UserListState(StatesGroup):
+    Menu = State()
+    FilterByHouse = State()
+    FilterByPhone = State()
+    FilterByName = State()
+
+
 class UserState(StatesGroup):
     Menu = State()
     InfoAboutMe = State()

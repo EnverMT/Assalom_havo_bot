@@ -1,11 +1,15 @@
-from aiogram import Dispatcher
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher import filters
 from aiogram.types import Message
+from sqlalchemy import select
 
 from tgbot.handlers.user_approval import list_of_waiting_approval_users, waiting_approval_user, approve_user
-from tgbot.keyboards.inline import DomkomMenu
-from tgbot.misc.states import DomkomState, UserApprovalState
+from tgbot.keyboards.inline import DomkomMenu, ListOfApprovedUsersMenu
+from tgbot.misc.states import DomkomState, UserApprovalState, UserListState
 from tgbot.services.DbCommands import DbCommands
+
+import tgbot.models.models as models
 
 db = DbCommands()
 
@@ -13,6 +17,37 @@ db = DbCommands()
 async def domkom_start(message: Message, state: FSMContext):
     await DomkomState.Menu.set()
     return await message.reply("Hello, domkom!", reply_markup=DomkomMenu)
+
+
+async def list_of_approved_users(call: types.CallbackQuery, state: FSMContext):
+    await state.finish()
+    await state.reset_state()
+    await UserListState.Menu.set()
+
+    await call.answer(text="Выберите вид поиска")
+    await call.bot.send_message(chat_id=call.from_user.id,
+                                text="Выберите вид поиска",
+                                reply_markup=ListOfApprovedUsersMenu)
+
+async def list_of_approved_users_by_phone(call: types.CallbackQuery, state: FSMContext):
+    await UserListState.FilterByPhone.set()
+    await call.message.edit_reply_markup()
+    await call.answer(text="list_of_approved_users_by_house")
+    await call.bot.send_message(chat_id=call.from_user.id, text="Введите часть телефон номера:")
+
+
+async def list_of_approved_users_by_house(call: types.CallbackQuery, state: FSMContext):
+    await UserListState.FilterByHouse.set()
+    await call.message.edit_reply_markup()
+    await call.answer(text="Фильтр по домам")
+    await call.bot.send_message(chat_id=call.from_user.id, text="Введите номер дома:")
+
+
+async def list_of_approved_users_by_name(call: types.CallbackQuery, state: FSMContext):
+    await UserListState.FilterByName.set()
+    await call.message.edit_reply_markup()
+    await call.answer(text="list_of_approved_users_by_house")
+    await call.bot.send_message(chat_id=call.from_user.id, text="Введите часть имени:")
 
 
 def register_domkom(dp: Dispatcher):
@@ -23,7 +58,26 @@ def register_domkom(dp: Dispatcher):
                                        is_domkom=True)
     dp.register_callback_query_handler(waiting_approval_user,
                                        state=UserApprovalState.ListOfWaitingApprovalUsers,
+                                       text="list_of_waiting_approval_users",
                                        is_domkom=True)
     dp.register_callback_query_handler(approve_user,
                                        state=UserApprovalState.WaitingApprovalUser,
+                                       is_domkom=True)
+
+    dp.register_callback_query_handler(list_of_approved_users,
+                                       state=DomkomState.Menu,
+                                       text="list_of_approved_users",
+                                       is_domkom=True)
+
+    dp.register_callback_query_handler(list_of_approved_users_by_house,
+                                       state=UserListState.Menu,
+                                       text="list_of_approved_users_by_house",
+                                       is_domkom=True)
+    dp.register_callback_query_handler(list_of_approved_users_by_phone,
+                                       state=UserListState.Menu,
+                                       text="list_of_approved_users_by_phone",
+                                       is_domkom=True)
+    dp.register_callback_query_handler(list_of_approved_users_by_name,
+                                       state=UserListState.Menu,
+                                       text="list_of_approved_users_by_name",
                                        is_domkom=True)

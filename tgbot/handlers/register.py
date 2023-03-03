@@ -12,7 +12,7 @@ from tgbot.services.DbCommands import DbCommands
 
 """
 [ ] To do validation of all inputs in all methods
-[ ] To use memoryStorage, and save data to Database at final step only
+[x] To use memoryStorage, and save data to Database at final step only
 """
 
 db = DbCommands()
