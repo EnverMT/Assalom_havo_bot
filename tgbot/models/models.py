@@ -91,7 +91,8 @@ class User(Base):
             await session.execute(sql)
             await session.commit()
 
-    async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[List[Address]]:
+
+    async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[Address]:
         db_session = call.bot.get("db")
         sql_addresses = select(Address) \
             .join(Propiska, Address.id == Propiska.address_id) \
@@ -99,7 +100,7 @@ class User(Base):
             .where(User.id == self.id)
         async with db_session() as session:
             result = await session.execute(sql_addresses)
-            return result.all()
+            return result.scalars().all()
 
     async def get_phones(self, call: types.CallbackQuery | types.Message) -> List[Tuple[Phone]]:
         db_session = call.bot.get("db")

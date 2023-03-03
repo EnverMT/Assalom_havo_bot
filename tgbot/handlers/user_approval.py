@@ -21,7 +21,7 @@ async def list_of_waiting_approval_users(call: types.CallbackQuery, state: FSMCo
     for user, phone in users:
         address = await user.get_addresses(call=call)
         text = f"Ник: {user.full_name}\t  "
-        text += f"Address: {address[0][0].house}/{address[0][0].apartment}"
+        text += f"Address: {address[0].house}/{address[0].apartment}"
         inline_user_keyboard.add(InlineKeyboardButton(text=text, callback_data=user.id))
     await call.bot.send_message(chat_id=call.from_user.id, text="List of waiting approval users",
                                 reply_markup=inline_user_keyboard)
@@ -41,8 +41,8 @@ async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
         for phone_tuple in phones:
             text += f"Tel: {phone_tuple[0].numbers}\n"
     if addresses:
-        for addr_tuple in addresses:
-            text += f"Address: {addr_tuple[0].house}/{addr_tuple[0].apartment}\n"
+        for addr in addresses:
+            text += f"Address: {addr.house}/{addr.apartment}\n"
 
     keyboard = InlineKeyboardMarkup(row_width=1)
     keyboard.add(InlineKeyboardButton(text="Принять", callback_data="Approve"))

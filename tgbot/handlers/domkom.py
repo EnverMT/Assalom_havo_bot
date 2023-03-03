@@ -1,15 +1,15 @@
+from typing import List
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher import filters
 from aiogram.types import Message
 from sqlalchemy import select
 
 from tgbot.handlers.user_approval import list_of_waiting_approval_users, waiting_approval_user, approve_user
 from tgbot.keyboards.inline import DomkomMenu, ListOfApprovedUsersMenu
 from tgbot.misc.states import DomkomState, UserApprovalState, UserListState
+from tgbot.models import models
 from tgbot.services.DbCommands import DbCommands
-
-import tgbot.models.models as models
 
 db = DbCommands()
 
@@ -29,11 +29,34 @@ async def list_of_approved_users(call: types.CallbackQuery, state: FSMContext):
                                 text="Выберите вид поиска",
                                 reply_markup=ListOfApprovedUsersMenu)
 
+
 async def list_of_approved_users_by_phone(call: types.CallbackQuery, state: FSMContext):
     await UserListState.FilterByPhone.set()
     await call.message.edit_reply_markup()
     await call.answer(text="list_of_approved_users_by_house")
     await call.bot.send_message(chat_id=call.from_user.id, text="Введите часть телефон номера:")
+
+
+async def list_of_approved_users_by_phone_get_users(message: types.Message, state: FSMContext):
+    if not message.text.isnumeric():
+        await message.answer(text="Введите только цифру")
+        return
+    await state.reset_state()
+
+    async with message.bot.get("db")() as session:
+        users: List[models.User] = (await session.execute(select(models.User)
+                                        .join(models.Phone)
+                                        .where(models.Phone.numbers.contains(message.text))))\
+            .scalars().all()
+    for user in users:
+        text = f"Ник: {user.full_name}\t  "
+
+        print(user.full_name)
+
+
+
+
+
 
 
 async def list_of_approved_users_by_house(call: types.CallbackQuery, state: FSMContext):
@@ -69,14 +92,20 @@ def register_domkom(dp: Dispatcher):
                                        text="list_of_approved_users",
                                        is_domkom=True)
 
-    dp.register_callback_query_handler(list_of_approved_users_by_house,
-                                       state=UserListState.Menu,
-                                       text="list_of_approved_users_by_house",
-                                       is_domkom=True)
     dp.register_callback_query_handler(list_of_approved_users_by_phone,
                                        state=UserListState.Menu,
                                        text="list_of_approved_users_by_phone",
                                        is_domkom=True)
+
+    dp.register_message_handler(list_of_approved_users_by_phone_get_users,
+                                state=UserListState.FilterByPhone,
+                                is_domkom=True)
+
+    dp.register_callback_query_handler(list_of_approved_users_by_house,
+                                       state=UserListState.Menu,
+                                       text="list_of_approved_users_by_house",
+                                       is_domkom=True)
+
     dp.register_callback_query_handler(list_of_approved_users_by_name,
                                        state=UserListState.Menu,
                                        text="list_of_approved_users_by_name",
