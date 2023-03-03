@@ -24,3 +24,5 @@ jobs:
           script: |
             cd Assalom_havo_bot
             git pull
+            alembic upgrade head
+            sudo systemctl restart assalom_havo_tg_bot.service
