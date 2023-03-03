@@ -74,7 +74,7 @@ class User(Base):
         return "<User(id='{}', fullname='{}', username='{}')>".format(
             self.id, self.full_name, self.username)
 
-    async def is_domkom(self, call: types.CallbackQuery | types.Message, user_id = 0) -> bool:
+    async def is_domkom(self, call: types.CallbackQuery | types.Message, user_id=0) -> bool:
         if user_id == 0:
             user_id = self.id
         db_session = call.bot.get("db")
@@ -91,17 +91,15 @@ class User(Base):
             await session.execute(sql)
             await session.commit()
 
-
-    async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[Tuple[Address]]:
+    async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[List[Address]]:
         db_session = call.bot.get("db")
         sql_addresses = select(Address) \
             .join(Propiska, Address.id == Propiska.address_id) \
             .join(User, User.id == Propiska.user_id) \
             .where(User.id == self.id)
         async with db_session() as session:
-            result =  await session.execute(sql_addresses)
+            result = await session.execute(sql_addresses)
             return result.all()
-
 
     async def get_phones(self, call: types.CallbackQuery | types.Message) -> List[Tuple[Phone]]:
         db_session = call.bot.get("db")

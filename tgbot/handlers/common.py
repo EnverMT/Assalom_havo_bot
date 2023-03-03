@@ -21,8 +21,11 @@ async def list_of_waiting_approval_users(call: types.CallbackQuery, state: FSMCo
         return
 
     for user, phone in users:
-        text = f"Имя: {user.full_name}\t"
-        text += f"Phone: {phone.numbers}"
+        address = await user.get_addresses(call=call)
+        text = f"Имя: {user.fio}\t  "
+        text += f"Ник: {user.full_name}\t  "
+        text += f"Phone: {phone.numbers}\t  "
+        text += f"Address: {address[0][0].house}/{address[0][0].apartment}"
         inline_user_keyboard.add(InlineKeyboardButton(text=text, callback_data=user.id))
     await call.bot.send_message(chat_id=call.from_user.id, text="List of waiting approval users",
                                 reply_markup=inline_user_keyboard)
