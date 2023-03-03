@@ -1,0 +1,26 @@
+name: Build and Deploy Code
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: pulling git repo
+        uses: actions/checkout@v2
+
+      - name: deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.HOST}}
+          username: ${{secrets.LOGIN}}
+          key: ${{secrets.KEY}}
+          script: |
+            cd Assalom_havo_bot
+            git pull
