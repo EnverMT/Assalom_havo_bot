@@ -18,7 +18,7 @@ async def admin_start(message: Message):
     await message.bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
                                                 BotCommand('cancel', 'Отмена')], scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-    return await message.reply("Hello, admin!", reply_markup=AdminMenu)
+    return await message.reply("Hello, admin!!!!", reply_markup=AdminMenu)
 
 def register_admin(dp: Dispatcher):
     dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
