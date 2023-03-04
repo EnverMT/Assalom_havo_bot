@@ -1,20 +1,20 @@
 from aiogram import Dispatcher
 from aiogram.types import Message, BotCommand, BotCommandScopeChat
 
-from tgbot.handlers.domkom import (list_of_approved_users,
-                                   list_of_approved_users_by_phone,
-                                   list_of_approved_users_by_house,
-                                   list_of_approved_users_by_name,
-                                   list_of_approved_users_by_phone_get_users, list_of_approved_users_by_name_get_users,
-                                   list_of_approved_users_by_house_get_users)
-
-from tgbot.handlers.user_approval import (list_of_waiting_approval_users,
-                                   waiting_approval_user,
-                                   approve_user
-                                   )
 from tgbot.handlers.domkom_approval import (list_of_domkoms,
                                             add_new_domkom,
                                             assign_new_domkom)
+from tgbot.handlers.user_approval import (list_of_waiting_approval_users,
+                                          waiting_approval_user,
+                                          approve_user
+                                          )
+from tgbot.handlers.user_filter import (list_of_approved_users,
+                                        list_of_approved_users_by_phone,
+                                        list_of_approved_users_by_house,
+                                        list_of_approved_users_by_name,
+                                        list_of_approved_users_by_phone_get_users,
+                                        list_of_approved_users_by_name_get_users,
+                                        list_of_approved_users_by_house_get_users)
 from tgbot.keyboards.inline import AdminMenu
 from tgbot.misc.states import AdminState, UserApprovalState, DomkomControlState, UserListState
 
@@ -42,7 +42,6 @@ def register_admin(dp: Dispatcher):
                                        state=UserApprovalState.WaitingApprovalUser,
                                        is_admin=True)
 
-
     dp.register_callback_query_handler(list_of_domkoms,
                                        state=AdminState.Menu,
                                        text_contains="list_of_domkoms",
@@ -57,6 +56,8 @@ def register_admin(dp: Dispatcher):
                                        state=DomkomControlState.AddNewDomkom,
                                        is_admin=True)
 
+
+    #User filters
     dp.register_callback_query_handler(list_of_approved_users,
                                        state=AdminState.Menu,
                                        text="list_of_approved_users",
@@ -66,11 +67,6 @@ def register_admin(dp: Dispatcher):
                                        state=UserListState.Menu,
                                        text="list_of_approved_users_by_phone",
                                        is_admin=True)
-
-    dp.register_message_handler(list_of_approved_users_by_phone_get_users,
-                                state=UserListState.FilterByPhone,
-                                is_admin=True)
-
     dp.register_callback_query_handler(list_of_approved_users_by_house,
                                        state=UserListState.Menu,
                                        text="list_of_approved_users_by_house",
@@ -80,6 +76,12 @@ def register_admin(dp: Dispatcher):
                                        state=UserListState.Menu,
                                        text="list_of_approved_users_by_name",
                                        is_admin=True)
+
+
+
+    dp.register_message_handler(list_of_approved_users_by_phone_get_users,
+                                state=UserListState.FilterByPhone,
+                                is_admin=True)
     dp.register_message_handler(list_of_approved_users_by_name_get_users,
                                 state=UserListState.FilterByName,
                                 is_admin=True)
