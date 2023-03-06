@@ -14,3 +14,4 @@ alembic revision -m "your migration description" --autogenerate --head head
 alembic upgrade head
 ```
 6. To start bot execute "bot.py" in root directory 
+7. Repository visiblity changed
