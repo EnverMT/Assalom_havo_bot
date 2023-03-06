@@ -8,7 +8,8 @@ from tgbot.handlers.user_filter import (list_of_approved_users,
                                         list_of_approved_users_by_phone_get_users,
                                         list_of_approved_users_by_house,
                                         list_of_approved_users_by_name,
-                                        list_of_approved_users_by_name_get_users)
+                                        list_of_approved_users_by_name_get_users,
+                                        list_of_approved_users_by_house_get_users)
 from tgbot.keyboards.inline import DomkomMenu
 from tgbot.misc.states import DomkomState, UserApprovalState, UserListState
 from tgbot.services.DbCommands import DbCommands
@@ -60,4 +61,7 @@ def register_domkom(dp: Dispatcher):
                                 is_domkom=True)
     dp.register_message_handler(list_of_approved_users_by_name_get_users,
                                 state=UserListState.FilterByName,
+                                is_domkom=True)
+    dp.register_message_handler(list_of_approved_users_by_house_get_users,
+                                state=UserListState.FilterByHouse,
                                 is_domkom=True)

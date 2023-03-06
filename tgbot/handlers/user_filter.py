@@ -1,4 +1,5 @@
 from typing import List
+import re
 
 import aiogram.utils.markdown
 from aiogram import types
@@ -49,46 +50,37 @@ async def list_of_approved_users_by_house(call: types.CallbackQuery, state: FSMC
     await UserListState.FilterByHouse.set()
     await call.message.edit_reply_markup()
     await call.answer(text="Фильтр по домам")
-    await call.bot.send_message(chat_id=call.from_user.id, text="Введите номер дома(В формате 44-12):")
+    await call.bot.send_message(chat_id=call.from_user.id, text="Введите номер дома и квартиры(В формате 44-12) или только дома(44):")
 
 
 async def list_of_approved_users_by_house_get_users(message: types.Message, state: FSMContext):
-    user_data = await state.get_data()
-    if not message.text.isnumeric():
-        await message.answer(text="Введите только цифру")
-        return
-    async with message.bot.get("db")() as session:
-        house: models.Address = (await session.execute(select(models.Address)
-                                                       .where(models.Address.house == int(message.text)))) \
-            .scalars().all()
-    if not house:
-        await message.answer(text="Такой дом не существует в базе")
-        return
-    await state.update_data(house_number=house.house)
-
-    if message.text != '*':
-        if not message.text.isnumeric():
-            await message.answer(text="Введите только цифру")
-            return
+    if re.match(r"[0-9]+-[0-9]+", message.text):
+        arr = message.text.split("-")
+        house_num = int(arr[0])
+        apartment_num = int(arr[1])
         async with message.bot.get("db")() as session:
-            apartment: models.Address = (await session.execute(select(models.Address)
-                                                               .where(models.Address.apartment == int(message.text)))) \
-                .scalars().all()
-        if not apartment:
-            await message.answer(text="Такой квартиры не существует в базе")
-            return
+            users: models.User = (await session.execute(select(models.User)
+                                                        .join(models.Propiska)
+                                                        .join(models.Address)
+                                                        .where(models.Address.house == house_num)
+                                                        .where(models.Address.apartment == apartment_num)
+                                                               )).scalars().all()
+    elif re.match(r"[0-9]+", message.text):
+        house_num = int(message.text)
+        async with message.bot.get("db")() as session:
+            users: models.User = (await session.execute(select(models.User)
+                                                        .join(models.Propiska)
+                                                        .join(models.Address)
+                                                        .where(models.Address.house == house_num)
+                                                               )).scalars().all()
+    else:
+        await message.answer(text="Некорректный формат адреса дома")
+        return
+    if not users:
+        await message.answer(text="Нет зарегистрированных жителей этого дома")
+        return
 
     await state.reset_state()
-
-    async with message.bot.get("db")() as session:
-        users: List[models.User] = \
-            (await session.execute(select(models.User)
-                                   .join(models.Propiska)
-                                   .join(models.Address)
-                                   .where(models.Address.house == house &
-                                          models.Address.apartment == apartment))) \
-                .scalars().all()
-
     await list_of_approved_users_return_user_list(message=message, state=state, users=users)
 
 
