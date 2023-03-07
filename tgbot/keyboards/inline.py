@@ -32,10 +32,19 @@ ListOfApprovedUsersMenu = InlineKeyboardMarkup(
 UserMenu = InlineKeyboardMarkup(
         inline_keyboard=
         [
-       #     [InlineKeyboardButton(text="Найти владелца машины", callback_data="find_autos_owner")],
-            [InlineKeyboardButton(text="Информация обо мне", callback_data="info_aboutme")]
+            [InlineKeyboardButton(text="Информация обо мне", callback_data="info_aboutme")],
+            [InlineKeyboardButton(text="Автомобиль", callback_data="auto_info_menu")]
         ]
     )
+
+AutoMenu = InlineKeyboardMarkup(
+        inline_keyboard=
+        [
+            [InlineKeyboardButton(text="Найти владелца авто по номеру", callback_data="auto_find_owner")],
+            [InlineKeyboardButton(text="Мои автомобилы", callback_data="auto_my_cars")]
+        ]
+    )
+
 
 RegisterFinish = InlineKeyboardMarkup(
         inline_keyboard=
