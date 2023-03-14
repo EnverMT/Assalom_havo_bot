@@ -25,15 +25,15 @@ async def check_register_status(message: types.Message, state: FSMContext):
         return
 
     if user.isApproved:
-        await message.answer(text=f"Вы уже прошли регистрацию {user.full_name}")
+        await message.bot.send_message(chat_id=message.from_user.id, text=f"Вы уже прошли регистрацию {user.full_name}")
         return
 
     phones = await user.get_phones(message)
     if phones:
-        await message.answer(text="Ваша заявка под рассмотрением")
+        await message.bot.send_message(chat_id=message.from_user.id, text="Ваша заявка под рассмотрением")
         return
 
-    await message.answer(text=f"Для продолжения регистрации, прошу написать вашу Фамилию и Имя {user.full_name}")
+    await message.bot.send_message(chat_id=message.from_user.id, text=f"Для продолжения регистрации, прошу написать вашу Фамилию и Имя {user.full_name}")
     await RegisterState.ReadyToRegister.set()
 
 
