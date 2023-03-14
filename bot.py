@@ -11,6 +11,7 @@ from tgbot.handlers.domkom import register_domkom
 from tgbot.handlers.user import register_user
 from tgbot.handlers.register import register_register_menu
 from tgbot.handlers.common import register_common
+from tgbot.handlers.auto import register_auto
 from tgbot.middlewares.environment import EnvironmentMiddleware
 from tgbot.services.Base import Base
 
@@ -34,6 +35,8 @@ def register_all_handlers(dp):
     register_user(dp)
     register_common(dp)
     register_register_menu(dp)
+    register_auto(dp)
+
 
 
 

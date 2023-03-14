@@ -121,6 +121,13 @@ class User(Base):
             result = await session.execute(sql)
             return result.scalars().all()
 
+    async def get_autos(self, call: types.CallbackQuery | types.Message) -> List[Auto]:
+        db_session = call.bot.get("db")
+        sql = select(Auto).where(Auto.user_id == self.id)
+        async with db_session() as session:
+            result = await session.execute(sql)
+            return result.scalars().all()
+
 
 class Propiska(Base):
     __tablename__ = 'propiska'

@@ -40,8 +40,8 @@ UserMenu = InlineKeyboardMarkup(
 AutoMenu = InlineKeyboardMarkup(
         inline_keyboard=
         [
-            [InlineKeyboardButton(text="Найти владелца авто по номеру", callback_data="auto_find_owner")],
-            [InlineKeyboardButton(text="Мои автомобилы", callback_data="auto_my_cars")]
+            [InlineKeyboardButton(text="Найти владелца авто по номеру", callback_data="auto_find_owner_by_number")],
+            [InlineKeyboardButton(text="Мои автомобилы", callback_data="auto_list_my_cars")]
         ]
     )
 

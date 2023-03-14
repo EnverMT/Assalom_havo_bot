@@ -39,3 +39,7 @@ class UserListState(StatesGroup):
 class UserState(StatesGroup):
     Menu = State()
     InfoAboutMe = State()
+
+
+class AutoInfoState(StatesGroup):
+    Menu = State()

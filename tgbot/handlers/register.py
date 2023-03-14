@@ -33,7 +33,7 @@ async def check_register_status(message: types.Message, state: FSMContext):
         await message.answer(text="Ваша заявка под рассмотрением")
         return
 
-    await message.answer(text=f"Для продолжения регистрации, прошу написать Фамилию и Имю {user.full_name}")
+    await message.answer(text=f"Для продолжения регистрации, прошу написать вашу Фамилию и Имя {user.full_name}")
     await RegisterState.ReadyToRegister.set()
 
 
