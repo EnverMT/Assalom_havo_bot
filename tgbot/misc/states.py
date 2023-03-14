@@ -44,3 +44,5 @@ class UserState(StatesGroup):
 class AutoInfoState(StatesGroup):
     Menu = State()
     auto_find_owner_by_number = State()
+    AutoAdd = State()
+    AutoDelete = State()
