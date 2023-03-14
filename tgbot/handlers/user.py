@@ -16,7 +16,7 @@ async def user_start(message: Message):
                                                     BotCommand('cancel', 'Отмена')],
                                           scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-        await message.answer(text="Вы первый раз запускаете бота. Прошу пройти регистрацию. /register")
+        await message.bot.send_message(chat_id=message.from_user.id, text="Вы первый раз запускаете бота. Прошу пройти регистрацию. /register")
         await db.add_user(message=message)
         return
 
@@ -28,10 +28,10 @@ async def user_start(message: Message):
                                                     BotCommand('cancel', 'Отмена')],
                                           scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-        await message.answer(text="Вы еще не прошли авторизацию. Оставьте заявку (/register) и ждите ответа Домкома")
+        await message.bot.send_message(chat_id=message.from_user.id, text="Вы еще не прошли авторизацию. Оставьте заявку (/register) и ждите ответа Домкома")
         return
 
-    await message.answer(text=f"Привет {user.full_name}", reply_markup=UserMenu)
+    await message.bot.send_message(chat_id=message.from_user.id, text=f"Привет {user.full_name}", reply_markup=UserMenu)
     await message.bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
                                                 BotCommand('cancel', 'Отмена')],
                                       scope=BotCommandScopeChat(chat_id=message.from_user.id))

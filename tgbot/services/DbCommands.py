@@ -19,7 +19,7 @@ class DbCommands:
             else:
                 return None
 
-    async def select_current_user(self, message: types.Message) -> User:
+    async def select_current_user(self, message: types.Message | types.CallbackQuery) -> User:
         db_session = message.bot.get("db")
         sql = select(User).where(User.telegram_id == message.from_user.id)
 

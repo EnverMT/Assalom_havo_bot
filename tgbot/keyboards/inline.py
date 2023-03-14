@@ -15,7 +15,8 @@ DomkomMenu = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton(text="Список зарегистрированных жителей", callback_data="list_of_approved_users")],
             [InlineKeyboardButton(text="Список ожидаемых жителей", callback_data="list_of_waiting_approval_users")],
-            [InlineKeyboardButton(text="Информация обо мне", callback_data="info_aboutme")]
+            [InlineKeyboardButton(text="Информация обо мне", callback_data="info_aboutme")],
+            [InlineKeyboardButton(text="Автомобиль", callback_data="auto_info_menu")]
         ]
     )
 
@@ -32,10 +33,13 @@ ListOfApprovedUsersMenu = InlineKeyboardMarkup(
 UserMenu = InlineKeyboardMarkup(
         inline_keyboard=
         [
-       #     [InlineKeyboardButton(text="Найти владелца машины", callback_data="find_autos_owner")],
-            [InlineKeyboardButton(text="Информация обо мне", callback_data="info_aboutme")]
+            [InlineKeyboardButton(text="Информация обо мне", callback_data="info_aboutme")],
+            [InlineKeyboardButton(text="Автомобиль", callback_data="auto_info_menu")]
         ]
     )
+
+
+
 
 RegisterFinish = InlineKeyboardMarkup(
         inline_keyboard=
