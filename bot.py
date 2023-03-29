@@ -8,6 +8,7 @@ from tgbot.config import load_config
 from tgbot.filters.admin import AdminFilter, DomkomFilter
 from tgbot.handlers.admin import register_admin
 from tgbot.handlers.domkom import register_domkom
+from tgbot.handlers.domkom_approval import register_domkom_approval
 from tgbot.handlers.user import register_user
 from tgbot.handlers.register import register_register_menu
 from tgbot.handlers.common import register_common
@@ -32,6 +33,7 @@ def register_all_filters(dp):
 def register_all_handlers(dp):
     register_admin(dp)
     register_domkom(dp)
+    register_domkom_approval(dp)
     register_user(dp)
     register_common(dp)
     register_register_menu(dp)

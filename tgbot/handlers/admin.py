@@ -42,21 +42,6 @@ def register_admin(dp: Dispatcher):
                                        state=UserApprovalState.WaitingApprovalUser,
                                        is_admin=True)
 
-    dp.register_callback_query_handler(list_of_domkoms,
-                                       state=AdminState.Menu,
-                                       text_contains="list_of_domkoms",
-                                       is_admin=True)
-
-    dp.register_callback_query_handler(add_new_domkom,
-                                       state=AdminState.Menu,
-                                       text_contains="add_new_domkom",
-                                       is_admin=True)
-
-    dp.register_callback_query_handler(assign_new_domkom,
-                                       state=DomkomControlState.AddNewDomkom,
-                                       is_admin=True)
-
-
     #User filters
     dp.register_callback_query_handler(list_of_approved_users,
                                        state=AdminState.Menu,

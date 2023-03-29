@@ -22,6 +22,7 @@ class AdminState(StatesGroup):
 class DomkomControlState(StatesGroup):
     ListOfDomkoms = State()
     AddNewDomkom = State()
+    AddNewDomkomFiltered = State()
     AssignNewDomkom = State()
 
 
