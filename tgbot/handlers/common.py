@@ -46,5 +46,6 @@ async def cancel(message: types.Message, state: FSMContext):
 
 
 def register_common(dp: Dispatcher):
-    dp.register_callback_query_handler(info_about_me, state='*', text_contains="info_aboutme")
-    dp.register_message_handler(cancel, state='*', commands=['cancel'])
+    dp.register_callback_query_handler(info_about_me, state='*', text_contains="info_aboutme",
+                                       chat_type=types.ChatType.PRIVATE)
+    dp.register_message_handler(cancel, state='*', commands=['cancel'], chat_type=types.ChatType.PRIVATE)

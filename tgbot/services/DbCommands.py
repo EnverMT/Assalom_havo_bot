@@ -4,7 +4,7 @@ from aiogram import types
 from aiogram.types.base import Boolean, Integer
 from sqlalchemy import select, insert, update
 
-from tgbot.models.models import User, Phone
+from tgbot.models.models import User, Phone, ProtectedChat
 
 
 class DbCommands:
@@ -52,3 +52,14 @@ class DbCommands:
                 return rows
             else:
                 return None
+
+    async def get_protected_chats(self, message: types.Message) -> List[Integer]:
+        db_session = message.bot.get("db")
+        sql = select(ProtectedChat)
+
+        async with db_session() as session:
+            result = await session.execute(sql)
+            chatList = []
+            for chat in result.scalars().all():
+                chatList.append(chat.chat_id)
+            return chatList

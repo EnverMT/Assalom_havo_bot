@@ -1,7 +1,8 @@
-from typing import List
 import re
+from typing import List
 
 import aiogram.utils.markdown
+from aiogram import Dispatcher
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from sqlalchemy import select
@@ -50,7 +51,8 @@ async def list_of_approved_users_by_house(call: types.CallbackQuery, state: FSMC
     await UserListState.FilterByHouse.set()
     await call.message.edit_reply_markup()
     await call.answer(text="Фильтр по домам")
-    await call.bot.send_message(chat_id=call.from_user.id, text="Введите номер дома и квартиры(В формате 44-12) или только дома(44):")
+    await call.bot.send_message(chat_id=call.from_user.id,
+                                text="Введите номер дома и квартиры(В формате 44-12) или только дома(44):")
 
 
 async def list_of_approved_users_by_house_get_users(message: types.Message, state: FSMContext):
@@ -64,7 +66,7 @@ async def list_of_approved_users_by_house_get_users(message: types.Message, stat
                                                         .join(models.Address)
                                                         .where(models.Address.house == house_num)
                                                         .where(models.Address.apartment == apartment_num)
-                                                               )).scalars().all()
+                                                        )).scalars().all()
     elif re.match(r"[0-9]+", message.text):
         house_num = int(message.text)
         async with message.bot.get("db")() as session:
@@ -72,7 +74,7 @@ async def list_of_approved_users_by_house_get_users(message: types.Message, stat
                                                         .join(models.Propiska)
                                                         .join(models.Address)
                                                         .where(models.Address.house == house_num)
-                                                               )).scalars().all()
+                                                        )).scalars().all()
     else:
         await message.answer(text="Некорректный формат адреса дома")
         return
@@ -119,3 +121,23 @@ async def list_of_approved_users_return_user_list(message: types.Message, state:
             text += f"Tel: {p.numbers}\n"
 
         await message.answer(text=text)
+
+
+def register_user_filter(dp: Dispatcher):
+    dp.register_callback_query_handler(list_of_approved_users_by_phone,
+                                       state=UserListState.Menu,
+                                       text="list_of_approved_users_by_phone")
+    dp.register_callback_query_handler(list_of_approved_users_by_house,
+                                       state=UserListState.Menu,
+                                       text="list_of_approved_users_by_house")
+
+    dp.register_callback_query_handler(list_of_approved_users_by_name,
+                                       state=UserListState.Menu,
+                                       text="list_of_approved_users_by_name")
+
+    dp.register_message_handler(list_of_approved_users_by_phone_get_users,
+                                state=UserListState.FilterByPhone)
+    dp.register_message_handler(list_of_approved_users_by_name_get_users,
+                                state=UserListState.FilterByName)
+    dp.register_message_handler(list_of_approved_users_by_house_get_users,
+                                state=UserListState.FilterByHouse)

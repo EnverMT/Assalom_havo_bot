@@ -39,4 +39,4 @@ async def user_start(message: Message):
 
 
 def register_user(dp: Dispatcher):
-    dp.register_message_handler(user_start, state='*', commands=["start"])
+    dp.register_message_handler(user_start, state='*', commands=["start"], chat_type=types.ChatType.PRIVATE)

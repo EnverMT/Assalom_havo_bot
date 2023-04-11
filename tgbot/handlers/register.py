@@ -1,8 +1,8 @@
 from typing import List
 
 from aiogram import types, Dispatcher
-from aiogram.utils.markdown import quote_html
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.markdown import quote_html
 from sqlalchemy import insert, select, update
 
 from tgbot.keyboards.reply import contact_request
@@ -33,7 +33,8 @@ async def check_register_status(message: types.Message, state: FSMContext):
         await message.bot.send_message(chat_id=message.from_user.id, text="Ваша заявка под рассмотрением")
         return
 
-    await message.bot.send_message(chat_id=message.from_user.id, text=f"Для продолжения регистрации, прошу написать вашу Фамилию и Имя {user.full_name}")
+    await message.bot.send_message(chat_id=message.from_user.id,
+                                   text=f"Для продолжения регистрации, прошу написать вашу Фамилию и Имя {user.full_name}")
     await RegisterState.ReadyToRegister.set()
 
 
@@ -52,6 +53,7 @@ async def register_get_contact(message: types.Message, state: FSMContext):
     await message.answer(f"Ввведите номер вашего дома: (Только цифрами)", reply_markup=types.ReplyKeyboardRemove())
     await RegisterState.address_house.set()
 
+
 async def register_get_address_house(message: types.Message, state: FSMContext):
     if not message.text.isnumeric():
         await message.reply(text="Введите корректный номер дома")
@@ -68,7 +70,6 @@ async def register_get_address_house(message: types.Message, state: FSMContext):
 
 
 async def register_get_address_apartment(message: types.Message, state: FSMContext):
-
     if not message.text.isnumeric():
         await message.reply(text="Введите корректный номер квартиры")
         return
@@ -118,7 +119,8 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
 
 
 def register_register_menu(dp: Dispatcher):
-    dp.register_message_handler(check_register_status, commands=["register"], state='*')
+    dp.register_message_handler(check_register_status, commands=["register"], state='*',
+                                chat_type=types.ChatType.PRIVATE)
     dp.register_message_handler(register_get_fio, state=RegisterState.ReadyToRegister)
     dp.register_message_handler(register_get_contact,
                                 state=RegisterState.fio,

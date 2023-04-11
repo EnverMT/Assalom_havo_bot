@@ -1,4 +1,4 @@
-from aiogram import types
+from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy import update, delete
@@ -78,3 +78,10 @@ async def approve_user(call: types.CallbackQuery, state: FSMContext):
             await session.commit()
         await state.reset_state()
         await state.finish()
+
+
+def register_user_approval(dp: Dispatcher):
+    dp.register_callback_query_handler(waiting_approval_user,
+                                       state=UserApprovalState.ListOfWaitingApprovalUsers)
+    dp.register_callback_query_handler(approve_user,
+                                       state=UserApprovalState.WaitingApprovalUser)

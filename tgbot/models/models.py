@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 
 from aiogram import types
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, select, UniqueConstraint, update
@@ -7,6 +7,17 @@ from sqlalchemy import Integer
 from sqlalchemy.sql import func
 
 from tgbot.services.Base import Base
+
+
+class ProtectedChat(Base):
+    __tablename__ = 'protected_chats'
+
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(BigInteger, nullable=False)
+
+    def __repr__(self):
+        return "<ProtectedChat(id='{}', chat_id='{}')>".format(
+            self.id, self.chat_id)
 
 
 class Address(Base):
@@ -27,6 +38,7 @@ class Address(Base):
         return "<Address(id='{}', house='{}', apartment='{}')>".format(
             self.id, self.house, self.apartment)
 
+
 class Auto(Base):
     __tablename__ = 'auto'
 
@@ -39,6 +51,7 @@ class Auto(Base):
     def __repr__(self):
         return "<Auto(id='{}', number='{}', user_id='{}')>".format(
             self.id, self.number, self.user_id)
+
 
 class Phone(Base):
     __tablename__ = 'phones'
@@ -102,7 +115,6 @@ class User(Base):
         async with db_session() as session:
             await session.execute(sql)
             await session.commit()
-
 
     async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[Address]:
         db_session = call.bot.get("db")
