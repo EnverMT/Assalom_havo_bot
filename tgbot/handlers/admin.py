@@ -4,7 +4,8 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BotCommand, BotCommandScopeChat
 
-import bot
+
+from bot import bot
 from tgbot.keyboards.inline import AdminMenu
 from tgbot.misc.states import AdminState
 from ..filters import userFilter
@@ -17,8 +18,8 @@ router.message.filter(userFilter.isUserHasRole(['admin']))
 @router.message(Command('start'))
 async def admin_start(message: Message, state: FSMContext):
     await state.set_state(AdminState.Menu)
-    await bot.bot.set_my_commands(commands=[BotCommand(command='start', description='Старт бота'),
+    await bot.set_my_commands(commands=[BotCommand(command='start', description='Старт бота'),
                                             BotCommand(command='cancel', description='Отмена')],
                                   scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-    return await bot.bot.send_message(chat_id=message.from_user.id, text="Hello, admin!!!!", reply_markup=AdminMenu)
+    return await bot.send_message(chat_id=message.from_user.id, text="Hello, admin!!!!", reply_markup=AdminMenu)

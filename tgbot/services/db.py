@@ -11,9 +11,11 @@ engine = create_async_engine(
     future=True
 )
 
-async with engine.begin() as conn:
-    await conn.run_sync(Base.metadata.create_all)
 
-async_sessionmaker = sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession
-)
+async def get_db_session():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    return sessionmaker(
+        engine, expire_on_commit=False, class_=AsyncSession
+    )

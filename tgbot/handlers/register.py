@@ -1,8 +1,7 @@
 from typing import List
 
-from aiogram import types, Dispatcher
-from aiogram.dispatcher import FSMContext
-from aiogram.utils.markdown import quote_html
+from aiogram import types, Dispatcher, html
+from aiogram.fsm.context import FSMContext
 from sqlalchemy import insert, select, update
 
 from tgbot.keyboards.reply import contact_request
@@ -10,10 +9,6 @@ from tgbot.misc.states import RegisterState
 from tgbot.models.models import Phone, Address, Propiska, User
 from tgbot.services.DbCommands import DbCommands
 
-"""
-[ ] To do validation of all inputs in all methods
-[x] To use memoryStorage, and save data to Database at final step only
-"""
 
 db = DbCommands()
 
@@ -40,7 +35,7 @@ async def check_register_status(message: types.Message, state: FSMContext):
 
 async def register_get_fio(message: types.Message, state: FSMContext):
     await RegisterState.fio.set()
-    await state.update_data(fio=quote_html(message.text))
+    await state.update_data(fio=html(message.text))
 
     await message.answer(text=f"Прошу предоставит ваш телефон Контакт.",
                          reply_markup=contact_request)
@@ -59,7 +54,7 @@ async def register_get_address_house(message: types.Message, state: FSMContext):
         await message.reply(text="Введите корректный номер дома")
         return
 
-    house_num = int(quote_html(message.text))
+    house_num = int(html(message.text))
     if house_num > 49 or house_num < 42:
         await message.reply(text="Введите корректный номер дома")
         return
@@ -74,7 +69,7 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
         await message.reply(text="Введите корректный номер квартиры")
         return
 
-    apartment_num = int(quote_html(message.text))
+    apartment_num = int(html(message.text))
     if apartment_num > 90 or apartment_num < 0:
         await message.reply(text="Введите корректный номер квартиры")
         return
