@@ -1,8 +1,7 @@
 from typing import List, Tuple
 
 from aiogram import types
-from aiogram.types.base import Boolean, Integer
-from sqlalchemy import select, insert, update
+from sqlalchemy import select, insert, update, Integer
 
 from tgbot.models.models import User, Phone, ProtectedChat
 

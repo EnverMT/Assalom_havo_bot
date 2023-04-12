@@ -4,7 +4,7 @@ from typing import List
 import aiogram.utils.markdown
 from aiogram import Dispatcher
 from aiogram import types
-from aiogram.dispatcher import FSMContext
+from aiogram.fsm.context import FSMContext
 from sqlalchemy import select
 
 from tgbot.keyboards.inline import ListOfApprovedUsersMenu

@@ -1,20 +1,27 @@
 from aiogram import Dispatcher, types
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BotCommand, BotCommandScopeChat
 
+import bot
 from tgbot.handlers.user_approval import (list_of_waiting_approval_users
                                           )
 from tgbot.handlers.user_filter import (list_of_approved_users)
 from tgbot.keyboards.inline import AdminMenu
 from tgbot.misc.states import AdminState
+from aiogram import Router
+from aiogram.filters import Command
+from ..filters import userFilter
 
+router = Router()
 
-async def admin_start(message: Message):
-    await AdminState.Menu.set()
-    await message.bot.set_my_commands(commands=[BotCommand('start', 'Старт бота'),
-                                                BotCommand('cancel', 'Отмена')],
+@router.message(Command('start'), userFilter.isUserHasRole(['admin']))
+async def admin_start(message: Message, state: FSMContext):
+    await state.set_state(AdminState.Menu)
+    await bot.bot.set_my_commands(commands=[BotCommand(command='start', description='Старт бота'),
+                                                BotCommand(command='cancel', description='Отмена')],
                                       scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-    return await message.bot.send_message(chat_id=message.from_user.id, text="Hello, admin!!!!", reply_markup=AdminMenu)
+    return await bot.bot.send_message(chat_id=message.from_user.id, text="Hello, admin!!!!", reply_markup=AdminMenu)
 
 
 def register_admin(dp: Dispatcher):
