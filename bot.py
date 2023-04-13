@@ -3,6 +3,8 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
+from tgbot.middlewares import DbSessionMiddleware
 
 import tgbot.handlers
 from tgbot.config import load_config
@@ -23,6 +25,15 @@ dp = Dispatcher(storage=storage)
 
 
 async def main():
+    config = load_config(".env")
+
+    engine = create_async_engine(
+        f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}",
+        echo=True
+    )
+    sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
+    dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
+
     dp.include_router(tgbot.handlers.router)
 
     # start
