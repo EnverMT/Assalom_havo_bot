@@ -8,7 +8,7 @@ import tgbot.models as models
 
 
 class DbCommands:
-    async def select_user(self, user_id: Integer, session: AsyncSession) -> models.User:
+    async def select_user(self, user_id: Integer, session: AsyncSession) -> models.User | None:
         sql = select(models.User).where(models.User.id == user_id)
         result = await session.execute(sql)
         row = result.first()
@@ -18,7 +18,7 @@ class DbCommands:
             return None
 
     async def select_current_user(self, message: types.Message | types.CallbackQuery,
-                                  session: AsyncSession) -> models.User:
+                                  session: AsyncSession) -> models.User | None:
         sql = select(models.User).where(models.User.telegram_id == message.from_user.id)
         result = await session.execute(sql)
         row = result.first()
@@ -29,13 +29,14 @@ class DbCommands:
 
     async def add_user(self, message: types.Message, session: AsyncSession):
         sql = insert(models.User).values(telegram_id=message.from_user.id,
-                                  full_name=message.from_user.full_name,
-                                  username=message.from_user.username)
+                                         full_name=message.from_user.full_name,
+                                         username=message.from_user.username)
         await session.execute(sql)
         return await session.commit()
 
     async def get_list_of_waiting_approval_users(self, session: AsyncSession):
-        sql = select(models.User, models.Phone).join(models.Phone, models.User.id == models.Phone.user_id).where(User.isApproved == None)
+        sql = select(models.User, models.Phone).join(models.Phone, models.User.id == models.Phone.user_id).where(
+            models.User.isApproved == None)
         result: (models.User, models.Phone) = await session.execute(sql)
         rows = result.all()
         if rows:

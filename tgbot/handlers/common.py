@@ -1,24 +1,30 @@
-from aiogram import types, Dispatcher
-from aiogram.dispatcher import FSMContext
+from aiogram import Router, F, types, enums
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot import bot
 from tgbot.services.DbCommands import DbCommands
 
 db = DbCommands()
 
+router = Router()
 
-async def info_about_me(call: types.CallbackQuery):
+
+@router.callback_query(F.data == "info_aboutme", F.message.chat.type == enums.ChatType.PRIVATE)
+async def info_about_me(call: types.CallbackQuery, session: AsyncSession):
     await call.message.edit_reply_markup()
 
-    user = await db.select_current_user(call)
+    user = await db.select_current_user(call, session=session)
     text = f"Ник: {user.full_name}\n"
     text += f"Имя: {user.fio}\n\n"
 
-    addr = await user.get_addresses(call=call)
+    addr = await user.get_addresses(session=session)
 
-    phones = await user.get_phones(call=call)
+    phones = await user.get_phones(session=session)
     for p in phones:
         text += f"Tel: {p.numbers}\n"
-    await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
+    await bot.send_message(chat_id=call.from_user.id, text=f"{text}")
 
     for a in addr:
         text = f"\nAddress: {a.house}/{a.apartment}\n"
@@ -32,6 +38,7 @@ async def info_about_me(call: types.CallbackQuery):
         await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
 
 
+@router.message(Command('cancel'), F.message.chat.type == enums.ChatType.PRIVATE)
 async def cancel(message: types.Message, state: FSMContext):
     """
       Allow user to cancel any action
@@ -40,12 +47,6 @@ async def cancel(message: types.Message, state: FSMContext):
     if current_state is None:
         return
 
-    await state.finish()
+    await state.clear()
     # And remove keyboard (just in case)
     await message.reply('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
-
-
-def register_common(dp: Dispatcher):
-    dp.register_callback_query_handler(info_about_me, state='*', text_contains="info_aboutme",
-                                       chat_type=types.ChatType.PRIVATE)
-    dp.register_message_handler(cancel, state='*', commands=['cancel'], chat_type=types.ChatType.PRIVATE)

@@ -1,5 +1,4 @@
-import aiogram
-from aiogram import Router, F
+from aiogram import Router, F, enums
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BotCommand, BotCommandScopeChat
@@ -13,7 +12,7 @@ from tgbot.services.DbCommands import DbCommands
 db = DbCommands()
 
 router = Router()
-router.message.filter(F.chat.type == aiogram.enums.ChatType.PRIVATE)
+router.message.filter(F.chat.type == enums.ChatType.PRIVATE)
 
 
 @router.message(Command('start'))
