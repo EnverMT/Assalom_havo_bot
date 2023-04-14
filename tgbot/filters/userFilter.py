@@ -1,15 +1,13 @@
 from typing import List, Union
 
-
+from aiogram.filters import Filter
 from aiogram.types import Message
 from sqlalchemy import select
 
-from tgbot.config import Config
-from tgbot.models.models import Domkom
 from tgbot.config import load_config
+from tgbot.models import *
 
 
-from aiogram.filters import Filter
 class isUserHasRole(Filter):
     def __init__(self, role: Union[str, list]) -> None:
         self.role = role

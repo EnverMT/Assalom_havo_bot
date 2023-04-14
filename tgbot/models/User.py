@@ -5,6 +5,7 @@ from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, select, up
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
 
+from tgbot.models import *
 from tgbot.services.Base import Base
 
 
@@ -25,41 +26,33 @@ class User(Base):
         return "<User(id='{}', fullname='{}', username='{}')>".format(
             self.id, self.full_name, self.username)
 
-    async def is_domkom(self, call: types.CallbackQuery | types.Message, user_id=0) -> bool:
+    async def is_domkom(self, session: AsyncSession, user_id=0) -> bool:
         if user_id == 0:
             user_id = self.id
-        db_session = call.bot.get("db")
         sql = select(User).join(Domkom, Domkom.user_id == user_id)
-        async with db_session() as session:
-            result = await session.execute(sql)
-            row: List[User] = result.first()
-            return True if row else False
+        result = await session.execute(sql)
+        row = result.first()
+        return True if row else False
 
-    async def update_self_username(self, call: types.CallbackQuery | types.Message, session: AsyncSession):
+    async def update_self_username(self, session: AsyncSession, call: types.CallbackQuery | types.Message):
         sql = update(User).values(username=call.from_user.username).where(User.telegram_id == self.telegram_id)
         await session.execute(sql)
         await session.commit()
 
-    async def get_addresses(self, call: types.CallbackQuery | types.Message) -> List[Address]:
-        db_session = call.bot.get("db")
+    async def get_addresses(self, session: AsyncSession) -> List[Address]:
         sql_addresses = select(Address) \
             .join(Propiska, Address.id == Propiska.address_id) \
             .join(User, User.id == Propiska.user_id) \
             .where(User.id == self.id)
-        async with db_session() as session:
-            result = await session.execute(sql_addresses)
-            return result.scalars().all()
+        result = await session.execute(sql_addresses)
+        return result.scalars().all()
 
-    async def get_phones(self, call: types.CallbackQuery | types.Message) -> List[Phone]:
-        db_session = call.bot.get("db")
+    async def get_phones(self, session: AsyncSession) -> List[Phone]:
         sql = select(Phone).where(Phone.user_id == self.id)
-        async with db_session() as session:
-            result = await session.execute(sql)
-            return result.scalars().all()
+        result = await session.execute(sql)
+        return result.scalars().all()
 
-    async def get_autos(self, call: types.CallbackQuery | types.Message) -> List[Auto]:
-        db_session = call.bot.get("db")
+    async def get_autos(self, session: AsyncSession) -> List[Auto]:
         sql = select(Auto).where(Auto.user_id == self.id)
-        async with db_session() as session:
-            result = await session.execute(sql)
-            return result.scalars().all()
+        result = await session.execute(sql)
+        return result.scalars().all()

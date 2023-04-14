@@ -4,12 +4,12 @@ from aiogram import types
 from sqlalchemy import select, insert, Integer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tgbot.models import *
+import tgbot.models as models
 
 
 class DbCommands:
-    async def select_user(self, user_id: Integer, session: AsyncSession) -> User | None:
-        sql = select(User).where(User.id == user_id)
+    async def select_user(self, user_id: Integer, session: AsyncSession) -> models.User:
+        sql = select(models.User).where(models.User.id == user_id)
         result = await session.execute(sql)
         row = result.first()
         if row:
@@ -18,8 +18,8 @@ class DbCommands:
             return None
 
     async def select_current_user(self, message: types.Message | types.CallbackQuery,
-                                  session: AsyncSession) -> User | None:
-        sql = select(User).where(User.telegram_id == message.from_user.id)
+                                  session: AsyncSession) -> models.User:
+        sql = select(models.User).where(models.User.telegram_id == message.from_user.id)
         result = await session.execute(sql)
         row = result.first()
         if row:
@@ -28,15 +28,15 @@ class DbCommands:
             return None
 
     async def add_user(self, message: types.Message, session: AsyncSession):
-        sql = insert(User).values(telegram_id=message.from_user.id,
+        sql = insert(models.User).values(telegram_id=message.from_user.id,
                                   full_name=message.from_user.full_name,
                                   username=message.from_user.username)
         await session.execute(sql)
         return await session.commit()
 
     async def get_list_of_waiting_approval_users(self, session: AsyncSession):
-        sql = select(User, Phone).join(Phone, User.id == Phone.user_id).where(User.isApproved == None)
-        result: (User, Phone) = await session.execute(sql)
+        sql = select(models.User, models.Phone).join(models.Phone, models.User.id == models.Phone.user_id).where(User.isApproved == None)
+        result: (models.User, models.Phone) = await session.execute(sql)
         rows = result.all()
         if rows:
             return rows
@@ -44,7 +44,7 @@ class DbCommands:
             return None
 
     async def get_protected_chats(self, session: AsyncSession) -> List[Integer]:
-        sql = select(ProtectedChat)
+        sql = select(models.ProtectedChat)
         result = await session.execute(sql)
         chatList = []
         for chat in result.scalars().all():
