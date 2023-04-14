@@ -1,41 +1,54 @@
 from typing import List
 
-from aiogram import types, Dispatcher, html
+from aiogram import types, Dispatcher, html, Router, enums, F
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from sqlalchemy import insert, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot import bot
 from tgbot.keyboards.reply import contact_request
 from tgbot.misc.states import RegisterState
-from tgbot.models.models import Phone, Address, Propiska, User
+from tgbot.models import *
 from tgbot.services.DbCommands import DbCommands
-
 
 db = DbCommands()
 
+router = Router()
+router.message.filter(F.chat.type == enums.ChatType.PRIVATE)
 
-async def check_register_status(message: types.Message, state: FSMContext):
-    user = await db.select_current_user(message=message)
+
+@router.message(Command('register'))
+async def check_register_status(message: types.Message, state: FSMContext, session: AsyncSession):
+    user = await db.select_current_user(message=message, session=session)
 
     if not user:
         return
 
     if user.isApproved:
-        await message.bot.send_message(chat_id=message.from_user.id, text=f"Вы уже прошли регистрацию {user.full_name}")
+        await bot.send_message(chat_id=message.from_user.id, text=f"Вы уже прошли регистрацию {user.full_name}")
         return
 
-    phones = await user.get_phones(message)
+    phones = await user.get_phones(session=session)
     if phones:
-        await message.bot.send_message(chat_id=message.from_user.id, text="Ваша заявка под рассмотрением")
+        await bot.send_message(chat_id=message.from_user.id, text="Ваша заявка под рассмотрением")
         return
 
-    await message.bot.send_message(chat_id=message.from_user.id,
-                                   text=f"Для продолжения регистрации, прошу написать вашу Фамилию и Имя {user.full_name}")
-    await RegisterState.ReadyToRegister.set()
+    await bot.send_message(chat_id=message.from_user.id,
+                           text=f"Для продолжения регистрации, прошу написать вашу Фамилию и Имя {user.full_name}")
+    await state.set_state(RegisterState.ReadyToRegister)
 
 
 async def register_get_fio(message: types.Message, state: FSMContext):
     await RegisterState.fio.set()
     await state.update_data(fio=html(message.text))
+
+    builder = ReplyKeyboardBuilder()
+    builder.row(
+        types.KeyboardButton(text="Запросить геолокацию", request_location=True),
+        types.KeyboardButton(text="Запросить контакт", request_contact=True)
+    )
 
     await message.answer(text=f"Прошу предоставит ваш телефон Контакт.",
                          reply_markup=contact_request)
