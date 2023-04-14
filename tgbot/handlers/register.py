@@ -1,6 +1,6 @@
 from typing import List
 
-from aiogram import types, Dispatcher, html, Router, enums, F
+from aiogram import types, html, Router, enums, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
@@ -45,9 +45,7 @@ async def register_get_fio(message: types.Message, state: FSMContext):
     await state.update_data(fio=html.quote(message.text))
 
     builder = ReplyKeyboardBuilder()
-    builder.row(
-        types.KeyboardButton(text="Ваш Контакт.", request_contact=True)
-    )
+    builder.row(types.KeyboardButton(text="Ваш Контакт.", request_contact=True))
 
     await message.answer(text=f"Прошу предоставит ваш телефон Контакт.",
                          reply_markup=builder.as_markup(resize_keyboard=True))

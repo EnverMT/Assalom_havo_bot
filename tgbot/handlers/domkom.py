@@ -1,24 +1,26 @@
-from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
+from aiogram import Dispatcher, types, Router, F, enums
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.filters import Command
 
+from tgbot.filters.userFilter import isUserHasRole
 from tgbot.handlers.user_approval import list_of_waiting_approval_users
 from tgbot.handlers.user_filter import (list_of_approved_users)
 from tgbot.keyboards.inline import DomkomMenu
 from tgbot.misc.states import DomkomState
-from tgbot.services.DbCommands import DbCommands
 
-db = DbCommands()
+router = Router()
+router.message.filter(F.chat.type == enums.ChatType.PRIVATE)
+router.message.filter(isUserHasRole(['domkom']))
 
 
+@router.message(Command('start'))
 async def domkom_start(message: Message, state: FSMContext):
-    await DomkomState.Menu.set()
+    await state.set_state(DomkomState.Menu)
     return await message.reply("Hello, domkom!", reply_markup=DomkomMenu)
 
 
 def register_domkom(dp: Dispatcher):
-    dp.register_message_handler(domkom_start, commands=["start"], state="*", is_domkom=True,
-                                chat_type=types.ChatType.PRIVATE)
     dp.register_callback_query_handler(list_of_waiting_approval_users,
                                        text_contains="list_of_waiting_approval_users",
                                        state=DomkomState.Menu,

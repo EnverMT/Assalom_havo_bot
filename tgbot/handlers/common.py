@@ -35,7 +35,7 @@ async def info_about_me(call: types.CallbackQuery, session: AsyncSession):
         text += f"Номер счетчика газа - {a.gaz_schetchik_nomer}\n"
 
         text += f"\nМусор л.с. - <code>{a.musor_ls}</code>\n"
-        await call.bot.send_message(chat_id=call.from_user.id, text=f"{text}")
+        await bot.send_message(chat_id=call.from_user.id, text=f"{text}")
 
 
 @router.message(Command('cancel'), F.message.chat.type == enums.ChatType.PRIVATE)
