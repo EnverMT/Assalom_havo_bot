@@ -3,11 +3,11 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
-from tgbot.middlewares import DbSessionMiddleware
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 import tgbot.handlers
 from tgbot.config import load_config
+from tgbot.middlewares import DbSessionMiddleware
 
 logger = logging.getLogger(__name__)
 

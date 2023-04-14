@@ -4,14 +4,14 @@ from aiogram import types
 from sqlalchemy import select, insert, Integer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tgbot.models.models import User, Phone, ProtectedChat
+from tgbot.models import *
 
 
 class DbCommands:
     async def select_user(self, user_id: Integer, session: AsyncSession) -> User | None:
         sql = select(User).where(User.id == user_id)
         result = await session.execute(sql)
-        row: List[User] = result.first()
+        row = result.first()
         if row:
             return row[0]
         else:
@@ -21,7 +21,7 @@ class DbCommands:
                                   session: AsyncSession) -> User | None:
         sql = select(User).where(User.telegram_id == message.from_user.id)
         result = await session.execute(sql)
-        row: List[User] = result.first()
+        row = result.first()
         if row:
             return row[0]
         else:
