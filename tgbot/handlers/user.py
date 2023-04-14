@@ -4,6 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BotCommand, BotCommandScopeChat
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from bot import bot
 from tgbot.keyboards.inline import UserMenu
 from tgbot.misc.states import UserState
@@ -26,7 +27,7 @@ async def user_start(message: Message, state: FSMContext, session: AsyncSession)
 
         await bot.send_message(chat_id=message.from_user.id,
                                text="Вы первый раз запускаете бота. Прошу пройти регистрацию. /register")
-        await db.add_user(message=message)
+        await db.add_user(message=message, session=session)
         return
 
     await user.update_self_username(call=message, session=session)
