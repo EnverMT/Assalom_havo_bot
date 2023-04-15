@@ -104,10 +104,8 @@ async def notify_about_approved_user(call: types.CallbackQuery, state: FSMContex
 
     user_data = await state.get_data()
     user_id = int(user_data['user_id'])
-    print("user_id", user_id)
     user: User = await db.select_user(session=session, user_id=int(user_id))
     whoApproved: User = await db.select_user_tg_id(session=session, telegram_id=call.from_user.id)
-    print("whoApproved", whoApproved.fio)
 
     phones = await user.get_phones(session=session)
     addresses = await user.get_addresses(session=session)
