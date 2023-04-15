@@ -12,10 +12,10 @@ from tgbot.middlewares import DbSessionMiddleware
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.CRITICAL,
     format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
 )
-logger.info("Starting bot")
+logger.critical("Starting bot")
 config = load_config(".env")
 
 bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
@@ -27,7 +27,7 @@ config = load_config(".env")
 
 engine = create_async_engine(
     f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}",
-    echo=True
+    echo=False
 )
 session_pool = async_sessionmaker(engine, expire_on_commit=False)
 
