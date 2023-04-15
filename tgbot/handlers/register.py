@@ -8,6 +8,7 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot import bot
+from tgbot.config import load_config
 from tgbot.misc.states import RegisterState
 from tgbot.models import *
 from tgbot.services.DbCommands import DbCommands
@@ -120,5 +121,26 @@ async def register_get_address_apartment(message: types.Message, state: FSMConte
     await session.execute(sql_propiska)
     await session.execute(sql_user)
     await session.commit()
-
+    await notify_admin_about_new_user(message=message, state=state, session=session)
     await state.clear()
+
+
+async def notify_admin_about_new_user(message: types.Message, state: FSMContext, session: AsyncSession):
+    config = load_config(".env")
+    user_data = await state.get_data()
+
+    text = "Новый юзер ожидает авторизации\n"
+    text += f"Ник: {message.from_user.full_name}\n"
+    text += f"Имя: {user_data['fio']}\n"
+    text += f"Телефон: {user_data['user_phone']}\n"
+    text += f"Дом: {user_data['user_address_house']}\n"
+    text += f"Квартира: {user_data['user_address_apartment']}"
+
+
+    for admin_id in config.tg_bot.admin_ids:
+        await bot.send_message(chat_id=admin_id, text=text)
+
+    sql = select(Domkom)
+    domkoms: List[Domkom] = (await session.execute(sql)).scalars().all()
+    for domkom in domkoms:
+        await bot.send_message(chat_id=domkom.telegram_id, text=text)
