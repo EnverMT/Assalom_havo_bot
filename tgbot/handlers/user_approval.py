@@ -1,41 +1,52 @@
-from aiogram import types, Dispatcher
+from aiogram import types, Router, F, enums
 from aiogram.fsm.context import FSMContext
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import update, delete
+from sqlalchemy.ext.asyncio import AsyncSession
 
-import tgbot.models.models as models
+from bot import bot
+from tgbot.filters.userFilter import isUserHasRole
 from tgbot.misc.states import UserApprovalState
+from tgbot.models import *
 from tgbot.services.DbCommands import DbCommands
 
 db = DbCommands()
 
+router = Router()
+router.message.filter(F.chat.type == enums.ChatType.PRIVATE)
+router.message.filter(isUserHasRole(['admin', 'domkom']))
 
-async def list_of_waiting_approval_users(call: types.CallbackQuery, state: FSMContext):
+
+@router.callback_query(F.data == "list_of_waiting_approval_users")
+async def list_of_waiting_approval_users(call: types.CallbackQuery, state: FSMContext, session: AsyncSession):
     await call.message.edit_reply_markup()
-    users = await db.get_list_of_waiting_approval_users(call=call)
-    inline_user_keyboard = InlineKeyboardMarkup(row_width=1)
+    users = await db.get_list_of_waiting_approval_users(session=session)
+
+    inline_user_keyboard = InlineKeyboardBuilder()
     if not users:
-        await call.bot.send_message(chat_id=call.from_user.id, text="No users waiting")
+        await bot.send_message(chat_id=call.from_user.id, text="No users waiting")
         return
 
     for user, phone in users:
-        address = await user.get_addresses(call=call)
+        address = await user.get_addresses(session=session)
         text = f"Ник: {user.full_name}\t  "
         text += f"Address: {address[0].house}/{address[0].apartment}"
-        inline_user_keyboard.add(InlineKeyboardButton(text=text, callback_data=user.id))
-    await call.bot.send_message(chat_id=call.from_user.id, text="List of waiting approval users",
-                                reply_markup=inline_user_keyboard)
-    await UserApprovalState.ListOfWaitingApprovalUsers.set()
+        inline_user_keyboard.row(InlineKeyboardButton(text=text, callback_data=user.id))
+    await bot.send_message(chat_id=call.from_user.id, text="List of waiting approval users",
+                           reply_markup=inline_user_keyboard.as_markup())
+    await state.set_state(UserApprovalState.ListOfWaitingApprovalUsers)
 
 
-async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
+@router.callback_query(UserApprovalState.ListOfWaitingApprovalUsers)
+async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext, session: AsyncSession):
     await call.message.edit_reply_markup()
-    user: models.User = await db.select_user(call=call, user_id=int(call.data))
+    user: User = await db.select_user(session=session, user_id=int(call.data))
     text = f"Ник: {user.full_name}\n"
     text += f"Имя: {user.fio}\n"
 
-    phones = await user.get_phones(call=call)
-    addresses = await user.get_addresses(call=call)
+    phones = await user.get_phones(session=session)
+    addresses = await user.get_addresses(session=session)
 
     if phones:
         for p in phones:
@@ -44,44 +55,40 @@ async def waiting_approval_user(call: types.CallbackQuery, state: FSMContext):
         for addr in addresses:
             text += f"Address: {addr.house}/{addr.apartment}\n"
 
-    keyboard = InlineKeyboardMarkup(row_width=1)
-    keyboard.add(InlineKeyboardButton(text="Принять", callback_data="Approve"))
-    keyboard.add(InlineKeyboardButton(text="Отказать", callback_data="Deny"))
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(InlineKeyboardButton(text="Принять", callback_data="Approve"))
+    keyboard.row(InlineKeyboardButton(text="Отказать", callback_data="Deny"))
 
-    await UserApprovalState.WaitingApprovalUser.set()  # State
+    await state.set_state(UserApprovalState.WaitingApprovalUser)
     await state.update_data(user_id=int(user.id))
-    await call.bot.send_message(chat_id=call.from_user.id, text=text, reply_markup=keyboard)
+    await bot.send_message(chat_id=call.from_user.id, text=text, reply_markup=keyboard.as_markup())
 
 
-async def approve_user(call: types.CallbackQuery, state: FSMContext):
-    db_session = call.bot.get("db")
+@router.callback_query(UserApprovalState.WaitingApprovalUser)
+async def approve_user(call: types.CallbackQuery, state: FSMContext, session: AsyncSession):
     user_data = await state.get_data()
     user_id = int(user_data['user_id'])
     await call.message.edit_reply_markup()
 
     if call.data == "Approve":
-        sql = update(models.User).values(isApproved=True, whoApproved=call.from_user.id).where(
-            models.User.id == user_id)
-        async with db_session() as session:
+        try:
+            sql = update(User).values(isApproved=True, whoApproved=call.from_user.id).where(
+                User.id == user_id)
             await session.execute(sql)
             await session.commit()
 
-        await call.bot.send_message(chat_id=call.from_user.id, text="Approved")
-        user: models.User = await db.select_user(call=call, user_id=user_id)
-        await call.bot.send_message(chat_id=user.telegram_id, text="Ваша заявка была одобрена. Нажмите /start.")
+            await bot.send_message(chat_id=call.from_user.id, text="Approved")
+            await call.answer(text="Approved")
+            user: User = await db.select_user(session=session, user_id=user_id)
+            await bot.send_message(chat_id=user.telegram_id, text="Ваша заявка была одобрена. Нажмите /start.")
+        except Exception as ex:
+            await call.answer(text="Ошибка")
+            return
     else:
-        await call.answer(text="Заявка отменена")
+        sql = delete(User).where(User.id == user_id)
+        await session.execute(sql)
+        await session.commit()
 
-        sql = delete(models.User).where(models.User.id == user_id)
-        async with db_session() as session:
-            await session.execute(sql)
-            await session.commit()
-        await state.reset_state()
-        await state.finish()
+        await call.answer(text="Заявка отклонена")
+        await state.clear()
 
-
-def register_user_approval(dp: Dispatcher):
-    dp.register_callback_query_handler(waiting_approval_user,
-                                       state=UserApprovalState.ListOfWaitingApprovalUsers)
-    dp.register_callback_query_handler(approve_user,
-                                       state=UserApprovalState.WaitingApprovalUser)

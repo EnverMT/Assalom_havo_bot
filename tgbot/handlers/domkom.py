@@ -21,13 +21,12 @@ async def domkom_start(message: Message, state: FSMContext):
 
 
 def register_domkom(dp: Dispatcher):
-    dp.register_callback_query_handler(list_of_waiting_approval_users,
-                                       text_contains="list_of_waiting_approval_users",
-                                       state=DomkomState.Menu,
-                                       is_domkom=True)
+
 
     # User filter
     dp.register_callback_query_handler(list_of_approved_users,
                                        state=DomkomState.Menu,
                                        text="list_of_approved_users",
                                        is_domkom=True)
+
+    pass

@@ -8,7 +8,7 @@ import tgbot.models as models
 
 
 class DbCommands:
-    async def select_user(self, user_id: Integer, session: AsyncSession) -> models.User | None:
+    async def select_user(self, user_id: int, session: AsyncSession) -> models.User | None:
         sql = select(models.User).where(models.User.id == user_id)
         result = await session.execute(sql)
         row = result.first()
