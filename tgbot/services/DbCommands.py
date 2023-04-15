@@ -1,10 +1,12 @@
 from typing import List
 
 from aiogram import types
+from aiogram.types import Message
 from sqlalchemy import select, insert, Integer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import tgbot.models as models
+from bot import bot
 
 
 class DbCommands:
@@ -51,3 +53,26 @@ class DbCommands:
         for chat in result.scalars().all():
             chatList.append(chat.chat_id)
         return chatList
+
+    async def protect_chat(self, message: Message, session: AsyncSession) -> bool:
+        is_already_protected = await self.is_chat_protected(message=message, session=session)
+        if is_already_protected:
+            await bot.send_message(chat_id=message.from_user.id,
+                                   text=f"Already protected. Chat_id={message.chat.id} / thread id = {message.message_thread_id}")
+            return False
+
+        sql = insert(models.ProtectedChat).values(chat_id=message.chat.id, thread_id=message.message_thread_id)
+        try:
+            await session.execute(sql)
+            await session.commit()
+            return True
+        except Exception as ex:
+            return False
+
+    async def is_chat_protected(self, message: Message, session: AsyncSession) -> bool:
+        sql = select(models.ProtectedChat).where(models.ProtectedChat.chat_id == message.chat.id,
+                                                 models.ProtectedChat.thread_id == message.message_thread_id)
+        protected_chat = (await session.execute(sql)).scalars().first()
+        if protected_chat:
+            return True
+        return False

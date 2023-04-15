@@ -1,22 +1,34 @@
-from aiogram import Dispatcher, types
-from aiogram.types import Message
+from datetime import datetime
 
+from aiogram import Router, F, enums
+from aiogram.types import Message, ChatPermissions
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from bot import bot
+from tgbot.filters.userFilter import isUserHasRole
 from tgbot.services.DbCommands import DbCommands
-
 
 db = DbCommands()
 
+router = Router()
+router.message.filter(F.chat.type.in_([enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]))
 
-@dp.message_handlers(chat_type=types.ChatType.SUPERGROUP)
-async def message_in_group(message: Message):
-    protected_chats = await db.get_protected_chats(message=message)
-    if message.chat.id in protected_chats:
-        user = await db.select_current_user(message=message)
-        if not user or not user.isApproved:
-            await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+MUTE_DURATION = 15
 
 
+@router.message(F.text == "!protect", isUserHasRole(['admin']))
+async def add_chat_thread_to_protection(message: Message, session: AsyncSession):
+    protect_result = await db.protect_chat(message=message, session=session)
+    if protect_result:
+        await bot.send_message(chat_id=message.from_user.id,
+                               text=f"Protected chat_id:{message.chat.id} / thread_id:{message.message_thread_id}")
 
-def register_group_control(dp: Dispatcher):
-    pass
-    #dp.register_message_handler(message_in_group, state='*', chat_type=types.ChatType.SUPERGROUP)
+
+@router.message(isUserHasRole(['notApproved']))
+async def message_in_group(message: Message, session: AsyncSession):
+    is_chat_protected = await db.is_chat_protected(message=message, session=session)
+    if is_chat_protected:
+        until_date = datetime.now().timestamp() + MUTE_DURATION
+        await bot.restrict_chat_member(chat_id=message.chat.id, user_id=message.from_user.id, until_date=until_date,
+                                       permissions=ChatPermissions(can_send_messages=False))
+        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)

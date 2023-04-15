@@ -1,10 +1,11 @@
 from aiogram import Router
-from . import admin, user, common, register, domkom_approval, auto, user_approval, user_filter, domkom
+from . import admin, user, common, register, domkom_approval, auto, user_approval, user_filter, domkom, group_control
 
 
 router = Router()
 
 
+router.include_router(group_control.router)
 router.include_router(admin.router)
 router.include_router(domkom.router)
 router.include_router(user.router)
