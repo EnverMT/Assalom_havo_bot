@@ -4,6 +4,7 @@ from aiogram.filters import Filter
 from aiogram.types import Message
 from sqlalchemy import select
 
+import bot
 from tgbot.config import load_config
 from tgbot.models import *
 
@@ -14,16 +15,20 @@ class isUserHasRole(Filter):
         self.config = load_config(".env")
 
     async def __call__(self, message: Message) -> bool:
+        result = False
         if 'admin' in self.role or 'admin' == self.role:
-            return message.from_user.id in self.config.tg_bot.admin_ids
+            result = message.from_user.id in self.config.tg_bot.admin_ids
+
+        if result:
+            return True
 
         if 'domkom' in self.role or 'domkom' == self.role:
-            db_session = message.via_bot.get("db")
+            db_session = bot.session_pool
             sql = select(Domkom).where(Domkom.telegram_id == message.from_user.id)
             async with db_session() as session:
                 result = await session.execute(sql)
                 domkom_list: List[Domkom] = result.first()
                 if domkom_list:
-                    return True
+                    result = True
 
-        return False
+        return result

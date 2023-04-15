@@ -35,7 +35,7 @@ async def list_of_domkoms(call: types.CallbackQuery, state: FSMContext, session:
 
     builder = InlineKeyboardBuilder()
     for user, phone in domkoms:
-        builder.add(types.InlineKeyboardButton(text=f"{user.full_name} / {phone.numbers}", callback_data=user.id))
+        builder.row(types.InlineKeyboardButton(text=f"{user.full_name} / {phone.numbers}", callback_data=user.id))
     await bot.send_message(chat_id=call.from_user.id, text="Домкомы:", reply_markup=builder.as_markup())
     await call.answer(text="Домкомы")
 

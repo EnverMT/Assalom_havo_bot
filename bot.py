@@ -23,17 +23,17 @@ bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
+config = load_config(".env")
+
+engine = create_async_engine(
+    f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}",
+    echo=True
+)
+session_pool = async_sessionmaker(engine, expire_on_commit=False)
+
 
 async def main():
-    config = load_config(".env")
-
-    engine = create_async_engine(
-        f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}",
-        echo=True
-    )
-    sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
-    dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
-
+    dp.update.middleware(DbSessionMiddleware(session_pool=session_pool))
     dp.include_router(tgbot.handlers.router)
 
     # start

@@ -1,11 +1,9 @@
-from aiogram import Dispatcher, types, Router, F, enums
+from aiogram import Router, F, enums
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from aiogram.filters import Command
 
 from tgbot.filters.userFilter import isUserHasRole
-from tgbot.handlers.user_approval import list_of_waiting_approval_users
-from tgbot.handlers.user_filter import (list_of_approved_users)
 from tgbot.keyboards.inline import DomkomMenu
 from tgbot.misc.states import DomkomState
 
