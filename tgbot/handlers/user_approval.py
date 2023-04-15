@@ -91,4 +91,3 @@ async def approve_user(call: types.CallbackQuery, state: FSMContext, session: As
 
         await call.answer(text="Заявка отклонена")
         await state.clear()
-

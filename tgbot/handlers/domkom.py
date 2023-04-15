@@ -18,15 +18,3 @@ router.message.filter(isUserHasRole(['domkom']))
 async def domkom_start(message: Message, state: FSMContext):
     await state.set_state(DomkomState.Menu)
     return await message.reply("Hello, domkom!", reply_markup=DomkomMenu)
-
-
-def register_domkom(dp: Dispatcher):
-
-
-    # User filter
-    dp.register_callback_query_handler(list_of_approved_users,
-                                       state=DomkomState.Menu,
-                                       text="list_of_approved_users",
-                                       is_domkom=True)
-
-    pass

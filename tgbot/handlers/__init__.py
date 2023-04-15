@@ -1,5 +1,5 @@
 from aiogram import Router
-from . import admin, user, common, register, domkom_approval, auto, user_approval
+from . import admin, user, common, register, domkom_approval, auto, user_approval, user_filter
 
 
 router = Router()
@@ -12,3 +12,4 @@ router.include_router(register.router)
 router.include_router(domkom_approval.router)
 router.include_router(auto.router)
 router.include_router(user_approval.router)
+router.include_router(user_filter.router)
