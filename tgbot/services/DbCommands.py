@@ -19,6 +19,15 @@ class DbCommands:
         else:
             return None
 
+    async def select_user_tg_id(self, telegram_id: int, session: AsyncSession) -> models.User | None:
+        sql = select(models.User).where(models.User.telegram_id == telegram_id)
+        result = await session.execute(sql)
+        row = result.first()
+        if row:
+            return row[0]
+        else:
+            return None
+
     async def select_current_user(self, message: types.Message | types.CallbackQuery,
                                   session: AsyncSession) -> models.User | None:
         sql = select(models.User).where(models.User.telegram_id == message.from_user.id)
