@@ -6,7 +6,7 @@ After=network.target
 User=ubuntu
 Type=simple
 WorkingDirectory=/home/ubuntu/Assalom_havo_bot
-ExecStart=/usr/bin/python3 /home/ubuntu/Assalom_havo_bot/bot.py
+ExecStart=/home/ubuntu/Assalom_havo_bot/venv/bin/python3 /home/ubuntu/Assalom_havo_bot/bot.py
 Restart=always
 
 [Install]
