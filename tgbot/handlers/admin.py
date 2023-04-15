@@ -20,4 +20,4 @@ async def admin_start(message: Message, state: FSMContext):
                                         BotCommand(command='cancel', description='Отмена')],
                               scope=BotCommandScopeChat(chat_id=message.from_user.id))
 
-    return await bot.send_message(chat_id=message.from_user.id, text="Hello, admin!!!!", reply_markup=AdminMenu)
+    return await bot.send_message(chat_id=message.from_user.id, text="Hello, admin v2", reply_markup=AdminMenu)
