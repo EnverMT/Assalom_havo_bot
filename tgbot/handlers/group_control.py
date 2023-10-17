@@ -23,14 +23,14 @@ async def add_chat_thread_to_protection(message: Message, session: AsyncSession)
                                text=f"Protected chat_id:{message.chat.id} / thread_id:{message.message_thread_id}")
 
 
-@router.message(userStatus(['notApproved']))
-async def message_in_group(message: Message, session: AsyncSession):
-    is_chat_protected = await db.is_chat_protected(message=message, session=session)
-    if is_chat_protected:
-        # until_date = datetime.now().timestamp() + 120
-        # await bot.restrict_chat_member(chat_id=message.chat.id, user_id=message.from_user.id, until_date=until_date,
-        #                               permissions=ChatPermissions(can_send_messages=False))
-        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+# @router.message(userStatus(['notApproved']))
+# async def message_in_group(message: Message, session: AsyncSession):
+#     is_chat_protected = await db.is_chat_protected(message=message, session=session)
+#     if is_chat_protected:
+#         # until_date = datetime.now().timestamp() + 120
+#         # await bot.restrict_chat_member(chat_id=message.chat.id, user_id=message.from_user.id, until_date=until_date,
+#         #                               permissions=ChatPermissions(can_send_messages=False))
+#         await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
 
 
 @router.message(Command('blacklist'), isUserHasRole(['admin']))
@@ -47,5 +47,6 @@ async def add_text_to_blacklist(message: Message, session: AsyncSession):
 @router.message()
 async def check_text_to_blacklist(message: Message, session: AsyncSession):
     isBannedText = await models.Blacklist.isTextBlacklisted(text=message.text, session=session)
-    if isBannedText:
+    is_chat_protected = await db.is_chat_protected(message=message, session=session)
+    if isBannedText and is_chat_protected:
         await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
