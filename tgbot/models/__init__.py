@@ -5,3 +5,4 @@ from .Phone import Phone
 from .Propiska import Propiska
 from .ProtectedChat import ProtectedChat
 from .User import User
+from .Blacklist import Blacklist
